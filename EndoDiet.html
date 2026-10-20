@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EndoDiet · Batch cooking Madrid</title>
+<style>
+:root{
+  --bg:#f6f7f2; --card:#ffffff; --ink:#1f2937; --muted:#6b7280;
+  --emerald:#059669; --emerald-d:#047857; --teal:#0d9488;
+  --amber:#d97706; --orange:#ea580c; --sky:#0284c7; --rose:#e11d48;
+  --line:#e5e7eb; --radius:16px;
+  --grad:linear-gradient(135deg,#059669 0%,#0d9488 55%,#0284c7 100%);
+  --shadow:0 4px 14px rgba(16,24,40,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font:inherit;color:inherit}
+img{max-width:100%}
+code{background:#eef2f0;border-radius:6px;padding:1px 6px;font-size:.85em}
+
+/* ── cabecera ── */
+header.brand{background:var(--grad);color:#fff;padding:18px 16px 26px;position:relative;overflow:hidden}
+header.brand::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.12)}
+header.brand::before{content:"";position:absolute;right:60px;bottom:-70px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.08)}
+.brand-inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.brand-logo{width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:24px}
+.brand h1{font-size:1.35rem;letter-spacing:.3px}
+.brand p{font-size:.8rem;opacity:.9}
+.brand .season-pill{margin-left:auto;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:.75rem;font-weight:600;white-space:nowrap}
+
+/* ── navegación ── */
+nav.tabs{max-width:1180px;margin:-18px auto 0;padding:0 12px;position:relative;z-index:5}
+.tabs-scroll{display:flex;gap:8px;overflow-x:auto;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:8px}
+.tab{display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:11px;font-size:.85rem;font-weight:600;color:var(--muted);white-space:nowrap;transition:.15s}
+.tab .ic{font-size:1.05rem}
+.tab:hover{background:#f0fdf6;color:var(--emerald-d)}
+.tab.active{background:var(--grad);color:#fff;box-shadow:0 3px 8px rgba(5,150,105,.35)}
+.tab .soon{font-size:.6rem;background:#fef3c7;color:#92400e;border-radius:99px;padding:1px 6px;font-weight:700}
+.tab.active .soon{background:rgba(255,255,255,.25);color:#fff}
+
+main{max-width:1180px;margin:18px auto 40px;padding:0 12px}
+.view{display:none;animation:fade .25s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── tarjetas ── */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.card h2{font-size:1.1rem;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card h3{font-size:.95rem;margin:14px 0 8px}
+.muted{color:var(--muted)}
+.small{font-size:.8rem}
+.grid{display:grid;gap:14px}
+.grid.cols-2{grid-template-columns:repeat(2,1fr)}
+.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.grid.cols-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:960px){.grid.cols-4{grid-template-columns:repeat(2,1fr)}.grid.cols-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.grid.cols-2,.grid.cols-3,.grid.cols-4{grid-template-columns:1fr}}
+
+/* ── chips de alimentos (imágenes) ── */
+.foodchip{width:54px;height:54px;min-width:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:27px;box-shadow:inset 0 -3px 6px rgba(0,0,0,.08),0 2px 5px rgba(16,24,40,.10)}
+.g1{background:linear-gradient(135deg,#d1fae5,#a7f3d0)}.g2{background:linear-gradient(135deg,#fef3c7,#fde68a)}
+.g3{background:linear-gradient(135deg,#e0f2fe,#bae6fd)}.g4{background:linear-gradient(135deg,#fce7f3,#fbcfe8)}
+.g5{background:linear-gradient(135deg,#ede9fe,#ddd6fe)}.g6{background:linear-gradient(135deg,#ffedd5,#fed7aa)}
+
+/* ── píldoras y avisos ── */
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 10px;font-size:.7rem;font-weight:700}
+.b-green{background:#d1fae5;color:#065f46}.b-amber{background:#fef3c7;color:#92400e}
+.b-red{background:#fee2e2;color:#991b1b}.b-sky{background:#e0f2fe;color:#075985}
+.b-gray{background:#f3f4f6;color:#4b5563}.b-purple{background:#ede9fe;color:#5b21b6}
+.b-orange{background:#ffedd5;color:#9a3412}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+/* ── botones ── */
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:11px;padding:9px 16px;font-size:.85rem;font-weight:700;transition:.15s;border:1.5px solid transparent}
+.btn.primary{background:var(--grad);color:#fff;box-shadow:0 3px 8px rgba(5,150,105,.30)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.outline{border-color:#d1d5db;background:#fff}
+.btn.outline:hover{border-color:var(--emerald);color:var(--emerald-d)}
+.btn.soft{background:#ecfdf5;color:var(--emerald-d)}
+.btn.soft:hover{background:#d1fae5}
+.btn.danger-soft{background:#fef2f2;color:#b91c1c}
+.btn.sm{padding:6px 11px;font-size:.75rem;border-radius:9px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.iconbtn{width:34px;height:34px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;border:1.5px solid var(--line);background:#fff;font-size:1rem}
+.iconbtn:hover{border-color:var(--emerald)}
+
+/* ── rejilla semanal ── */
+.weekgrid-wrap{overflow-x:auto;border-radius:var(--radius);box-shadow:var(--shadow);background:var(--card)}
+table.weekgrid{border-collapse:collapse;width:100%;min-width:980px;font-size:.8rem}
+.weekgrid th{background:#f0fdf6;color:var(--emerald-d);text-align:left;padding:12px 10px;font-size:.8rem;border-bottom:2px solid #d1fae5}
+.weekgrid th .dnum{display:block;font-weight:400;color:var(--muted);font-size:.68rem}
+.weekgrid td{border-left:1px solid #f3f4f6;border-top:1px solid #f3f4f6;padding:8px;vertical-align:top;width:13%}
+.weekgrid td.rowhead{border-left:none;background:#fafaf8;font-weight:700;color:var(--muted);width:9%}
+.cell select{width:100%;border:1.5px solid var(--line);border-radius:9px;padding:7px 6px;font-size:.74rem;background:#fff}
+.cell select:focus{outline:2px solid #6ee7b7;border-color:var(--emerald)}
+.cell .emoji-preview{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cell .mini{font-size:1.35rem;width:34px;height:34px;min-width:34px;border-radius:10px}
+.cell .chipline{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:.7rem;color:var(--muted);cursor:pointer}
+.cell .chipline input{accent-color:var(--emerald);width:15px;height:15px}
+.freezelink{margin-top:6px;font-size:.72rem;color:var(--sky);cursor:pointer;text-decoration:underline dotted}
+.freezelink:hover{color:#075985}
+
+/* ── porciones / congelador ── */
+.portion{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);border-radius:14px;padding:11px 13px;margin-bottom:9px;background:#fff}
+.portion .code{font-family:ui-monospace,Consolas,monospace;font-weight:800;font-size:.78rem;border-radius:8px;padding:4px 8px;color:#fff;letter-spacing:.5px}
+.portion .grow{flex:1;min-width:0}
+.portion .name{font-weight:700;font-size:.85rem}
+.portion .meta{font-size:.72rem;color:var(--muted)}
+.expiry-ok{background:#d1fae5;color:#065f46}.expiry-warn{background:#fef3c7;color:#92400e}.expiry-bad{background:#fee2e2;color:#991b1b}
+
+/* ── pasos de planificación ── */
+.steps{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;margin-bottom:14px}
+.step{flex:1;min-width:130px;text-align:left;border:2px solid var(--line);border-radius:13px;padding:10px 12px;background:#fff;transition:.15s}
+.step .n{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:.72rem;font-weight:800;align-items:center;justify-content:center;margin-bottom:5px}
+.step .t{font-size:.78rem;font-weight:700;display:block}
+.step .s{font-size:.65rem;color:var(--muted)}
+.step.active{border-color:var(--emerald);background:#f0fdf6}
+.step.active .n{background:var(--emerald);color:#fff}
+.step.done .n{background:#10b981;color:#fff}
+
+/* listas de compra / tareas */
+.shopping-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1.5px solid var(--line);border-radius:12px;margin-bottom:8px;background:#fff}
+.shopping-item .qty{margin-left:auto;font-weight:800;font-size:.8rem;white-space:nowrap}
+.shopping-item .check{accent-color:var(--emerald);width:18px;height:18px}
+.shopping-item.checked{opacity:.5;text-decoration:line-through}
+.task{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:12px;background:#fbfdfb;border:1.5px solid #e7f5ee;margin-bottom:8px;font-size:.82rem}
+.task input{accent-color:var(--emerald);width:18px;height:18px;margin-top:1px}
+.task.checked{background:#f0fdf6}
+.task.checked .tx{opacity:.55;text-decoration:line-through}
+
+/* ── progreso / vasos ── */
+.progress{height:9px;border-radius:99px;background:#e5e7eb;overflow:hidden}
+.progress>i{display:block;height:100%;border-radius:99px;background:var(--grad);transition:width .3s}
+.glasses{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.glass{width:37px;height:37px;border-radius:50%;border:1.8px solid #bae6fd;background:#fff;font-size:.72rem;font-weight:800;color:#7dd3fc;transition:.12s}
+.glass.on{background:var(--sky);border-color:var(--sky);color:#fff;transform:scale(1.06)}
+
+/* ── tomas del día (registro) ── */
+.meal{display:flex;align-items:center;gap:13px;border:1.5px solid var(--line);border-radius:14px;padding:13px;margin-bottom:10px;background:#fff;cursor:pointer;transition:.15s}
+.meal:hover{border-color:#6ee7b7}
+.meal.done{background:#f0fdf6;border-color:#a7f3d0}
+.meal.done .mt{text-decoration:line-through;opacity:.6}
+.meal .state{width:30px;height:30px;min-width:30px;border-radius:50%;border:2px solid #d1d5db;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:transparent}
+.meal.done .state{background:var(--emerald);border-color:var(--emerald);color:#fff}
+.meal .grow{flex:1;min-width:0}
+.meal .mslot{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--emerald-d)}
+.meal .mt{font-size:.87rem;font-weight:600}
+.meal .md{font-size:.72rem;color:var(--muted)}
+
+/* ── calendario de temporada ── */
+.produce-strip{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:thin}
+.produce{min-width:86px;text-align:center;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:10px 6px}
+.produce .pe{font-size:1.7rem}
+.produce .pn{font-size:.68rem;font-weight:700;margin-top:4px}
+.produce .pm{font-size:.6rem;color:var(--muted)}
+
+/* ── diálogo ── */
+dialog{border:none;border-radius:18px;padding:0;max-width:min(560px,94vw);width:100%;box-shadow:0 20px 60px rgba(16,24,40,.35)}
+dialog::backdrop{background:rgba(17,24,39,.55);backdrop-filter:blur(2px)}
+.dialog-head{padding:16px 18px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.dialog-head h3{font-size:1rem}
+.dialog-body{padding:14px 18px 18px}
+.swap-row{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;cursor:pointer;font-size:.83rem}
+.swap-row:hover{border-color:var(--emerald);background:#f0fdf6}
+.swap-row.sel{border-color:var(--emerald);background:#ecfdf5}
+
+/* ── alertas ── */
+.notice{border-radius:12px;padding:11px 14px;font-size:.8rem;display:flex;gap:9px;align-items:flex-start;margin-bottom:12px}
+.notice.ok{background:#f0fdf6;border:1.5px solid #a7f3d0;color:#065f46}
+.notice.warn{background:#fffbeb;border:1.5px solid #fde68a;color:#92400e}
+.notice.bad{background:#fef2f2;border:1.5px solid #fecaca;color:#991b1b}
+
+/* ── futuro ejercicio ── */
+.contract{width:100%;border-collapse:collapse;font-size:.75rem}
+.contract th{background:#f3f4f6;text-align:left;padding:8px;border:1px solid var(--line)}
+.contract td{padding:8px;border:1px solid var(--line);vertical-align:top}
+.contract .mono{font-family:ui-monospace,Consolas,monospace;font-size:.7rem;color:var(--emerald-d)}
+
+/* ── nav inferior móvil ── */
+.bottomnav{display:none}
+@media(max-width:760px){
+  nav.tabs{margin-top:-18px}
+  .tabs-scroll{border-radius:14px}
+  main{margin-bottom:86px}
+  .bottomnav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:50;background:#fff;border-top:1.5px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(16,24,40,.10)}
+  .bottomnav .tab{flex:1;flex-direction:column;gap:2px;padding:7px 2px;font-size:.58rem;border-radius:10px}
+  .bottomnav .tab .ic{font-size:1.25rem}
+  header.brand{padding:14px 14px 24px}
+  .brand .season-pill{display:none}
+}
+footer{max-width:1180px;margin:0 auto;padding:0 12px 30px;text-align:center;font-size:.7rem;color:var(--muted)}
+.empty{padding:22px;text-align:center;color:var(--muted);font-size:.85rem;border:2px dashed var(--line);border-radius:14px}
+.weekbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.weekbar .wdate{font-weight:800;font-size:.9rem}
+textarea{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:10px;font-size:.83rem;resize:vertical;min-height:64px}
+input.txt{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:9px 11px;font-size:.83rem}
+input[type=date],input[type=number]{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.8rem}
+label.fld{display:block;font-size:.72rem;font-weight:700;color:var(--muted);margin:10px 0 5px;text-transform:uppercase;letter-spacing:.4px}
+.stat-big{font-size:1.7rem;font-weight:800}
+.kpi{padding:14px;border-radius:14px;border:1.5px solid var(--line);background:#fff}
+.kpi .kl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.kpi .kv{font-size:1.5rem;font-weight:800;margin-top:2px}
+.kpi .kv small{font-size:.75rem;font-weight:600;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header class="brand">
+  <div class="brand-inner">
+    <div class="brand-logo">🥗</div>
+    <div>
+      <h1>EndoDiet</h1>
+      <p>Batch cooking · 1550 kcal/día · Temporada de Madrid</p>
+    </div>
+    <span class="season-pill" id="seasonPill"></span>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-scroll" id="tabsTop"></div>
+</nav>
+<nav class="bottomnav" id="tabsBottom"></nav>
+
+<main id="view"></main>
+<footer>Realizado por César A. Fdez. en 2026 y basado en el plan nutricional indicado por el Dr. Sánchez Jiménez</footer>
+
+<dialog id="dlg"></dialog>
+
+<script>
+"use strict";
+/* ════════════════════════════════════════════════════════════
+   DATOS — Plan nutricional 1550 kcal/día (documento 500887.pdf)
+   ════════════════════════════════════════════════════════════ */
+
+const PLAN = { kcal:1550, carbsG:100, protG:110, fatG:75, fiberG:30, waterGlasses:8 };
+
+const GROUPS = ["lacteo","proteina","hidratos","verduras","frutas","grasas"];
+const GROUP_LABELS = { lacteo:"Lácteos", proteina:"Proteínas", hidratos:"Hidratos", verduras:"Verduras", frutas:"Frutas", grasas:"Grasas" };
+const DAILY_EXCHANGES = { lacteo:1.5, proteina:7, hidratos:4, verduras:1.5, frutas:2, grasas:4 };
+
+const SLOTS = ["desayuno","manana","comida","cena"];
+const SLOT_LABELS = { desayuno:"Desayuno", manana:"Media mañana", comida:"Comida", cena:"Cena" };
+
+const DAYS = ["lunes","martes","miercoles","jueves","viernes","sabado","domingo"];
+const DAY_LABELS = { lunes:"Lunes", martes:"Martes", miercoles:"Miércoles", jueves:"Jueves", viernes:"Viernes", sabado:"Sábado", domingo:"Domingo" };
+
+/* ── Calendario de temporada (región de Madrid, España) ──
+   Meses en los que el producto es de temporada local. */
+const PRODUCE = {
+  espinacas:{emoji:"🥬",months:[10,11,12,1,2,3,4,5]},
+  acelgas:{emoji:"🥬",months:[10,11,12,1,2,3,4,5]},
+  brocoli:{emoji:"🥦",months:[10,11,12,1,2,3,4,5]},
+  coliflor:{emoji:"🥦",months:[10,11,12,1,2,3,4,5]},
+  alcachofas:{emoji:"🌿",months:[11,12,1,2,3,4]},
+  esparragos:{emoji:"🌱",months:[3,4,5,6]},
+  judias_verdes:{emoji:"🫛",months:[5,6,7,8,9,10]},
+  calabacin:{emoji:"🥒",months:[5,6,7,8,9,10]},
+  berenjena:{emoji:"🍆",months:[6,7,8,9,10]},
+  pimiento:{emoji:"🫑",months:[6,7,8,9,10]},
+  tomate:{emoji:"🍅",months:[6,7,8,9,10]},
+  lechuga:{emoji:"🥬",months:[4,5,6,7,8,9,10]},
+  champinones:{emoji:"🍄",months:[10,11,12,1,2,3]},
+  setas:{emoji:"🍄",months:[10,11,12,1,2]},
+  calabaza:{emoji:"🎃",months:[9,10,11]},
+  zanahoria:{emoji:"🥕",months:[10,11,12,1,2,3,4]},
+  remolacha:{emoji:"🟣",months:[10,11,12,1,2,3]},
+  cebolla:{emoji:"🧅",months:[10,11,12,1,2,3]},
+  puerro:{emoji:"🧅",months:[10,11,12,1,2,3,4]},
+  patata:{emoji:"🥔",months:[9,10,11,12,1,2]},
+  naranja:{emoji:"🍊",months:[11,12,1,2,3,4,5]},
+  mandarina:{emoji:"🍊",months:[10,11,12,1,2]},
+  manzana:{emoji:"🍎",months:[9,10,11,12,1,2]},
+  pera:{emoji:"🍐",months:[9,10,11,12,1,2]},
+  granada:{emoji:"🍎",months:[9,10,11]},
+  kiwi:{emoji:"🥝",months:[11,12,1,2,3,4]},
+  platano:{emoji:"🍌",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  fresas:{emoji:"🍓",months:[3,4,5,6]},
+  melocoton:{emoji:"🍑",months:[5,6,7,8,9]},
+  albaricoque:{emoji:"🍑",months:[5,6,7]},
+  ciruela:{emoji:"🫐",months:[6,7,8,9]},
+  uva:{emoji:"🍇",months:[8,9,10]},
+  sandia:{emoji:"🍉",months:[6,7,8,9]},
+  melon:{emoji:"🍈",months:[6,7,8,9]},
+  lentejas:{emoji:"🫘",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  garbanzos:{emoji:"🫘",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  judias_blancas:{emoji:"🫘",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  arroz:{emoji:"🍚",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  pasta:{emoji:"🍝",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  huevo:{emoji:"🥚",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  pollo:{emoji:"🍗",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  pavo:{emoji:"🦃",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  pescado_blanco:{emoji:"🐟",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  pescado_azul:{emoji:"🐟",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  atun:{emoji:"🐟",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  lacteo:{emoji:"🥛",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  frutos_secos:{emoji:"🥜",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  aove:{emoji:"🫒",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  pan_integral:{emoji:"🍞",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  aguacate:{emoji:"🥑",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  cereales_integrales:{emoji:"🌾",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  bebida_vegetal:{emoji:"🥛",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  piña:{emoji:"🍍",months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+};
+const PRODUCE_LABELS = {
+  espinacas:"Espinacas",acelgas:"Acelgas",brocoli:"Brócoli",coliflor:"Coliflor",alcachofas:"Alcachofas",
+  esparragos:"Espárragos",judias_verdes:"Judías verdes",calabacin:"Calabacín",berenjena:"Berenjena",
+  pimiento:"Pimiento",tomate:"Tomate",lechuga:"Lechuga",champinones:"Champiñones",setas:"Setas",
+  calabaza:"Calabaza",zanahoria:"Zanahoria",remolacha:"Remolacha",cebolla:"Cebolla",puerro:"Puerro",
+  patata:"Patata",naranja:"Naranja",mandarina:"Mandarina",manzana:"Manzana",pera:"Pera",granada:"Granada",
+  kiwi:"Kiwi",platano:"Plátano",fresas:"Fresas",melocoton:"Melocotón",albaricoque:"Albaricoque",
+  ciruela:"Ciruela",uva:"Uva",sandia:"Sandía",melon:"Melón",lentejas:"Lentejas",garbanzos:"Garbanzos",
+  judias_blancas:"Judías blancas",arroz:"Arroz integral",pasta:"Pasta integral",huevo:"Huevo",
+  pollo:"Pollo",pavo:"Pavo",pescado_blanco:"Pescado blanco",pescado_azul:"Pescado azul",atun:"Atún",
+  lacteo:"Lácteo desnatado",frutos_secos:"Frutos secos",aove:"AOVE",pan_integral:"Pan integral",
+  aguacate:"Aguacate",cereales_integrales:"Cereales integrales",bebida_vegetal:"Bebida vegetal",piña:"Piña"
+};
+function inSeason(key, month){ const p = PRODUCE[key]; return !!p && p.months.includes(month); }
+function seasonEmoji(key){ return PRODUCE[key] ? PRODUCE[key].emoji : "🍽️"; }
+
+/* ── Catálogo de opciones (págs. 3–5 del documento) ──
+   img: imagen del plato · season: ingredientes para la temporada
+   recipe: ingredientes por porción (solo opciones de batch)
+   tasks: pasos de ejecución del batch cooking */
+const CATALOG = [
+  // DESAYUNO
+  {id:"des1",slot:"desayuno",img:"🍳",name:"Leche + pan integral + huevo + AOVE",detail:"½ vaso (110 ml) leche desnatada/semi · 1 rebanada grande (40 g) pan integral · 1 huevo revuelto (60 g) · 1 cda. AOVE",ex:{lacteo:.5,proteina:1,hidratos:2,grasas:1},season:["lacteo","huevo","pan_integral","aove"],recipe:[{n:"Leche desnatada",q:110,u:"ml",prod:"lacteo"},{n:"Pan integral",q:40,u:"g",prod:"pan_integral"},{n:"Huevo",q:1,u:"ud",prod:"huevo"},{n:"AOVE",q:10,u:"ml",prod:"aove"}],batch:null},
+  {id:"des2",slot:"desayuno",img:"🥣",name:"Yogur + cereal integral + queso fresco + nueces",detail:"1 yogur 125 ml natural sin azúcares · 4 cda. (30 g) cereal integral · 40 g queso fresco batido · 30 g nueces",ex:{lacteo:.5,proteina:1,hidratos:2,grasas:1},season:["lacteo","frutos_secos"],recipe:[{n:"Yogur natural desnatado",q:125,u:"ml",prod:"lacteo"},{n:"Cereal integral sin azúcar",q:30,u:"g",prod:"cereales_integrales"},{n:"Queso fresco batido",q:40,u:"g",prod:"lacteo"},{n:"Nueces naturales",q:30,u:"g",prod:"frutos_secos"}],batch:null},
+  {id:"des3",slot:"desayuno",img:"☕",name:"Café con leche + barra integral + pavo",detail:"1 taza (150 ml) café con leche desnatada · 40 g barra pan integral · 50 g pechuga de pavo · 1 cda. AOVE",ex:{lacteo:.5,proteina:1,hidratos:2,grasas:1},season:["lacteo","pavo","pan_integral","aove"],recipe:[{n:"Leche desnatada",q:110,u:"ml",prod:"lacteo"},{n:"Pan integral",q:40,u:"g",prod:"pan_integral"},{n:"Pechuga de pavo",q:50,u:"g",prod:"pavo"},{n:"AOVE",q:10,u:"ml",prod:"aove"}],batch:null},
+  {id:"des4",slot:"desayuno",img:"🥣",name:"Yogur bífidus + muesli + claras + lino",detail:"1 yogur bífidus 125 ml sin azúcares · 30 g muesli sin azúcares · 2 claras (80 g) · 7 g semillas de lino",ex:{lacteo:.5,proteina:1,hidratos:2,grasas:1},season:["lacteo","huevo"],recipe:[{n:"Yogur bífidus sin azúcar",q:125,u:"ml",prod:"lacteo"},{n:"Muesli sin azúcar",q:30,u:"g",prod:"cereales_integrales"},{n:"Huevo (claras)",q:2,u:"ud",prod:"huevo"},{n:"Semillas de lino",q:7,u:"g",prod:"frutos_secos"}],batch:null},
+  {id:"des5",slot:"desayuno",img:"🥑",name:"Bebida soja + pan centeno + salmón + aguacate",detail:"110 ml bebida de soja · 40 g pan de centeno · 50 g salmón ahumado · ½ aguacate (70 g)",ex:{lacteo:.5,proteina:1,hidratos:2,grasas:1},season:["pescado_azul","pan_integral"],recipe:[{n:"Bebida de soja",q:110,u:"ml",prod:"bebida_vegetal"},{n:"Pan de centeno",q:40,u:"g",prod:"pan_integral"},{n:"Salmón ahumado",q:50,u:"g",prod:"pescado_azul"},{n:"Aguacate",q:70,u:"g",prod:"aguacate"}],batch:null},
+  {id:"des6",slot:"desayuno",img:"🥛",name:"Kéfir + pan de semillas + jamón cocido + AOVE",detail:"110 ml kéfir · 40 g pan de semillas · 50 g jamón cocido · 1 cda. AOVE",ex:{lacteo:.5,proteina:1,hidratos:2,grasas:1},season:["lacteo","pan_integral","aove"],recipe:[{n:"Kéfir de leche",q:110,u:"ml",prod:"lacteo"},{n:"Pan de semillas",q:40,u:"g",prod:"pan_integral"},{n:"Jamón cocido",q:50,u:"g",prod:"pavo"},{n:"AOVE",q:10,u:"ml",prod:"aove"}],batch:null},
+  {id:"des7",slot:"desayuno",img:"🥣",name:"Bebida almendra + granola + requesón + pipas",detail:"110 ml bebida de almendra · 30 g granola sin azúcares · 60 g requesón · 20 g pipas",ex:{lacteo:.5,proteina:1,hidratos:2,grasas:1},season:["frutos_secos"],recipe:[{n:"Bebida de almendra",q:110,u:"ml",prod:"bebida_vegetal"},{n:"Granola sin azúcar",q:30,u:"g",prod:"cereales_integrales"},{n:"Requesón / cottage",q:60,u:"g",prod:"lacteo"},{n:"Pipas naturales",q:20,u:"g",prod:"frutos_secos"}],batch:null},
+  // MEDIA MAÑANA
+  {id:"man1",slot:"manana",img:"🍎",name:"Leche + manzana + nueces",detail:"110 ml leche desnatada · 1 manzana (100 g) · 30 g nueces",ex:{lacteo:.5,frutas:1,grasas:1},season:["lacteo","manzana","frutos_secos"],recipe:[{n:"Leche desnatada",q:110,u:"ml",prod:"lacteo"},{n:"Manzana",q:100,u:"g",prod:"manzana"},{n:"Nueces naturales",q:30,u:"g",prod:"frutos_secos"}],batch:null},
+  {id:"man2",slot:"manana",img:"🍊",name:"Yogur + naranja + almendras",detail:"1 yogur 125 ml natural · 1 naranja pequeña (100 g) · 20 g almendras",ex:{lacteo:.5,frutas:1,grasas:1},season:["lacteo","naranja","frutos_secos"],recipe:[{n:"Yogur natural desnatado",q:125,u:"ml",prod:"lacteo"},{n:"Naranja",q:100,u:"g",prod:"naranja"},{n:"Almendras naturales",q:20,u:"g",prod:"frutos_secos"}],batch:null},
+  {id:"man3",slot:"manana",img:"🍑",name:"Café con leche + nectarina + avellanas",detail:"150 ml café con leche desnatada · 1 nectarina (100 g) · 20 g avellanas",ex:{lacteo:.5,frutas:1,grasas:1},season:["lacteo","melocoton","frutos_secos"],recipe:[{n:"Leche desnatada",q:110,u:"ml",prod:"lacteo"},{n:"Nectarina",q:100,u:"g",prod:"melocoton"},{n:"Avellanas naturales",q:20,u:"g",prod:"frutos_secos"}],batch:null},
+  {id:"man4",slot:"manana",img:"🍐",name:"Yogur bífidus + pera + pipas",detail:"1 yogur bífidus 125 ml · 1 pera (100 g) · 20 g pipas",ex:{lacteo:.5,frutas:1,grasas:1},season:["lacteo","pera","frutos_secos"],recipe:[{n:"Yogur bífidus sin azúcar",q:125,u:"ml",prod:"lacteo"},{n:"Pera",q:100,u:"g",prod:"pera"},{n:"Pipas naturales",q:20,u:"g",prod:"frutos_secos"}],batch:null},
+  {id:"man5",slot:"manana",img:"🍐",name:"Bebida soja + pera + pistachos",detail:"110 ml bebida de soja · 1 pera (100 g) · 20 g pistachos",ex:{lacteo:.5,frutas:1,grasas:1},season:["pera","frutos_secos"],recipe:[{n:"Bebida de soja",q:110,u:"ml",prod:"bebida_vegetal"},{n:"Pera",q:100,u:"g",prod:"pera"},{n:"Pistachos naturales",q:20,u:"g",prod:"frutos_secos"}],batch:null},
+  {id:"man6",slot:"manana",img:"🫐",name:"Kéfir + ciruelas + nueces",detail:"110 ml kéfir · 2 ciruelas (100 g) · 30 g nueces",ex:{lacteo:.5,frutas:1,grasas:1},season:["lacteo","ciruela","frutos_secos"],recipe:[{n:"Kéfir de leche",q:110,u:"ml",prod:"lacteo"},{n:"Ciruelas",q:100,u:"g",prod:"ciruela"},{n:"Nueces naturales",q:30,u:"g",prod:"frutos_secos"}],batch:null},
+  {id:"man7",slot:"manana",img:"🍍",name:"Bebida almendra + piña + almendras",detail:"110 ml bebida de almendra · 2 rodajas de piña (100 g) · 20 g almendras",ex:{lacteo:.5,frutas:1,grasas:1},season:["frutos_secos"],recipe:[{n:"Bebida de almendra",q:110,u:"ml",prod:"bebida_vegetal"},{n:"Piña",q:100,u:"g",prod:"piña"},{n:"Almendras naturales",q:20,u:"g",prod:"frutos_secos"}],batch:null},
+  // COMIDA
+  {id:"com1",slot:"comida",img:"🍲",name:"Salteado de verduras + lentejas + pollo",detail:"150 g salteado de verduras · 80 g lentejas cocidas (40 g crudo) · 150 g pollo sin piel · 1 cda. AOVE · postre: naranja",ex:{verduras:.5,hidratos:2,proteina:3,grasas:1,frutas:1},season:["lentejas","pollo","espinacas","zanahoria","naranja"],batch:{
+    group:"LEG",freezerDays:90,tip:"Cocer la olla de lentejas en batch. Congelar en porciones de 80 g cocido; descongelar la noche anterior en nevera.",
+    recipe:[{n:"Lentejas",q:40,u:"g crudo",prod:"lentejas"},{n:"Pollo sin piel",q:150,u:"g",prod:"pollo"},{n:"Verduras para salteado",q:150,u:"g",prod:"espinacas"},{n:"AOVE",q:10,u:"ml",prod:"aove"}],
+    tasks:["Poner las lentejas en remojo la víspera","Cocer las lentejas 35-40 min con verdura","Enfriar rápido y porcionar en envases de 80 g","Etiquetar cada porción con su código"]}},
+  {id:"com2",slot:"comida",img:"🐟",name:"Acelgas + patata + pescado blanco",detail:"150 g acelgas cocidas · 1 patata (100 g) · 200 g pescado blanco · 1 cda. AOVE · postre: fresas",ex:{verduras:.5,hidratos:2,proteina:3,grasas:1,frutas:1},season:["acelgas","patata","pescado_blanco","fresas"],batch:{
+    group:"VER",freezerDays:60,tip:"Las acelgas cocidas congelan bien en porciones de 150 g. El pescado conviene cocinarlo el mismo día.",
+    recipe:[{n:"Acelgas",q:150,u:"g cocidas",prod:"acelgas"},{n:"Patata",q:100,u:"g",prod:"patata"},{n:"AOVE",q:10,u:"ml",prod:"aove"}],
+    tasks:["Lavar y cocer las acelgas 8 min","Escurrir bien y enfriar","Porcionar en envases de 150 g","Congelar en plano para apilar"]}},
+  {id:"com3",slot:"comida",img:"🍝",name:"Calabacín + pasta integral + queso y huevo",detail:"100 g calabacín · 60 g pasta integral cocida (30 g crudo) · 40 g queso fresco + 1 huevo · 1 cda. AOVE · postre: albaricoque",ex:{verduras:.5,hidratos:2,proteina:3,grasas:1,frutas:1},season:["calabacin","pasta","huevo","albaricoque"],batch:{
+    group:"HID",freezerDays:90,tip:"Hervir pasta integral al dente el día de batch, enfriar y congelar en porciones de 60 g cocido con un hilo de AOVE.",
+    recipe:[{n:"Pasta integral",q:30,u:"g crudo",prod:"pasta"},{n:"Calabacín",q:100,u:"g",prod:"calabacin"},{n:"Huevo",q:1,u:"ud",prod:"huevo"},{n:"Queso fresco",q:40,u:"g",prod:"lacteo"}],
+    tasks:["Hervir agua con sal y cocer la pasta al dente","Enfriar bajo agua fría para cortar cocción","Salpimentar con un hilo de AOVE","Porcionar en envases de 60 g cocido"]}},
+  {id:"com4",slot:"comida",img:"🫘",name:"Menestra + judías blancas + cerdo magro",detail:"150 g menestra · 80 g judías blancas cocidas (40 g crudo) · 150 g cerdo magro · 1 cda. AOVE · postre: arándanos",ex:{verduras:.5,hidratos:2,proteina:3,grasas:1,frutas:1},season:["judias_blancas","zanahoria","judias_verdes"],batch:{
+    group:"LEG",freezerDays:90,tip:"Las judías blancas cocidas congelan perfectamente en porciones de 80 g. Preparar la menestra y congelarla por separado.",
+    recipe:[{n:"Judías blancas",q:40,u:"g crudo",prod:"judias_blancas"},{n:"Verduras de menestra",q:150,u:"g",prod:"judias_verdes"},{n:"Cerdo magro",q:150,u:"g",prod:"pollo"},{n:"AOVE",q:10,u:"ml",prod:"aove"}],
+    tasks:["Dejar las judías en remojo 12 h","Cocer 50-60 min hasta que estén tiernas","Porcionar 80 g cocido por envase","Congelar la menestra en envases aparte"]}},
+  {id:"com5",slot:"comida",img:"🍚",name:"Alcachofas + arroz integral + pescado azul",detail:"100 g alcachofas · 60 g arroz integral cocido (30 g crudo) · 150 g salmón/trucha · 1 cda. AOVE · postre: kiwi",ex:{verduras:.5,hidratos:2,proteina:3,grasas:1,frutas:1},season:["alcachofas","arroz","pescado_azul","kiwi"],batch:{
+    group:"HID",freezerDays:90,tip:"Cocer arroz integral y congelar en porciones de 60 g. El pescado azul admite congelación crudo por partidas.",
+    recipe:[{n:"Arroz integral",q:30,u:"g crudo",prod:"arroz"},{n:"Alcachofas",q:100,u:"g",prod:"alcachofas"},{n:"Salmón o trucha",q:150,u:"g",prod:"pescado_azul"},{n:"AOVE",q:10,u:"ml",prod:"aove"}],
+    tasks:["Cocer el arroz integral 25-30 min","Enfriar extendido en bandeja","Porcionar 60 g cocido por envase","Comprar el pescado azul fresco por semanas"]}},
+  {id:"com6",slot:"comida",img:"🍄",name:"Setas + pan integral + pescado blanco",detail:"100 g setas · 40 g pan integral · 200 g pescado blanco · 1 cda. AOVE · postre: pera",ex:{verduras:.5,hidratos:2,proteina:3,grasas:1,frutas:1},season:["setas","pescado_blanco","pera","pan_integral"],batch:null},
+  {id:"com7",slot:"comida",img:"🥗",name:"Ensalada + garbanzos + atún y gambas",detail:"150 g ensalada · 80 g garbanzos cocidos (40 g crudo) · 50 g atún + 100 g gambas · 1 cda. AOVE · postre: frambuesas",ex:{verduras:.5,hidratos:2,proteina:3,grasas:1,frutas:1},season:["garbanzos","lechuga","atun"],batch:{
+    group:"LEG",freezerDays:90,tip:"Los garbanzos cocidos congelan muy bien en porciones de 80 g. Atún y gambas: añadir al descongelar, sin recocinar.",
+    recipe:[{n:"Garbanzos",q:40,u:"g crudo",prod:"garbanzos"},{n:"Lechuga y ensalada",q:150,u:"g",prod:"lechuga"},{n:"Atún en conserva",q:50,u:"g",prod:"atun"},{n:"AOVE",q:10,u:"ml",prod:"aove"}],
+    tasks:["Remojo de garbanzos 12 h","Cocer en olla 45-60 min","Porcionar 80 g cocido por envase","Lavar y secar la ensalada el día de consumo"]}},
+  // CENA
+  {id:"cen1",slot:"cena",img:"🥗",name:"Ensalada de canónigos + atún y queso",detail:"300 g ensalada de canónigos · 100 g atún + 20 g queso fresco · 1 cda. AOVE · postre: leche",ex:{verduras:1,proteina:3,grasas:1,lacteo:.5},season:["lechuga","atun","lacteo"],batch:null},
+  {id:"cen2",slot:"cena",img:"🍳",name:"Champiñones + huevos y queso",detail:"200 g champiñones · 2 huevos + 20 g queso fresco · 1 cda. AOVE · postre: yogur",ex:{verduras:1,proteina:3,grasas:1,lacteo:.5},season:["champinones","huevo","lacteo"],batch:{
+    group:"VER",freezerDays:60,tip:"Los champiñones salteados congelan bien en porciones de 200 g. Los huevos mejor recién hechos.",
+    recipe:[{n:"Champiñones",q:200,u:"g",prod:"champinones"},{n:"Huevo",q:2,u:"ud",prod:"huevo"}],
+    tasks:["Limpiar y laminar los champiñones","Saltear a fuego fuerte sin agua","Enfriar y porcionar 200 g","Congelar sin aceite; añadir AOVE al consumo"]}},
+  {id:"cen3",slot:"cena",img:"🐟",name:"Judías verdes + pescado blanco",detail:"200 g judías verdes · 200 g pescado blanco · 1 cda. AOVE · postre: bebida de soja",ex:{verduras:1,proteina:3,grasas:1,lacteo:.5},season:["judias_verdes","pescado_blanco"],batch:{
+    group:"VER",freezerDays:60,tip:"Blanquear las judías verdes el día de batch y congelar en porciones de 200 g; saltear al descongelar.",
+    recipe:[{n:"Judías verdes",q:200,u:"g",prod:"judias_verdes"},{n:"AOVE",q:10,u:"ml",prod:"aove"}],
+    tasks:["Lavar y cortar las judías","Blanquear 3-4 min en agua hirviendo con sal","Enfriar en agua fría y secar","Porcionar 200 g y congelar"]}},
+  {id:"cen4",slot:"cena",img:"🍲",name:"Sopa de verduras + pescado azul",detail:"200 g sopa de verduras · 150 g salmón/trucha · 1 cda. AOVE · postre: yogur bífidus",ex:{verduras:1,proteina:3,grasas:1,lacteo:.5},season:["calabacin","zanahoria","pescado_azul","lacteo"],batch:{
+    group:"SOP",freezerDays:90,tip:"La sopa es ideal para batch cooking: congelar en raciones individuales de 200 ml y descongelar directamente al fuego.",
+    recipe:[{n:"Verduras para caldo",q:200,u:"g",prod:"zanahoria"},{n:"Calabacín",q:100,u:"g",prod:"calabacin"},{n:"Cebolla y puerro",q:50,u:"g",prod:"cebolla"}],
+    tasks:["Preparar un caldo de verduras abundante","Cocer todas las verduras 20 min","Triturar y ajustar de sal","Envasar 200 ml por ración y congelar"]}},
+  {id:"cen5",slot:"cena",img:"🍳",name:"Tomate + tortilla francesa con pavo",detail:"300 g tomate · tortilla de 2 huevos con 50 g pavo · 1 cda. AOVE · postre: leche",ex:{verduras:1,proteina:3,grasas:1,lacteo:.5},season:["tomate","huevo","pavo","lacteo"],batch:{
+    group:"PRO",freezerDays:60,tip:"La tortilla francesa congelable: cocinar, enfriar y congelar porciones individuales; descongelar en nevera y dar un golpe de sartén.",
+    recipe:[{n:"Huevo",q:2,u:"ud",prod:"huevo"},{n:"Pechuga de pavo",q:50,u:"g",prod:"pavo"}],
+    tasks:["Batir los huevos con el pavo picado","Cocinar tortillas individuales poco hechas","Enfriar sobre rejilla","Envolver en film y congelar planas"]}},
+  {id:"cen6",slot:"cena",img:"🍗",name:"Espárragos + pollo",detail:"200 g espárragos trigueros · 150 g pollo sin piel · 1 cda. AOVE · postre: kéfir",ex:{verduras:1,proteina:3,grasas:1,lacteo:.5},season:["esparragos","pollo","lacteo"],batch:{
+    group:"PRO",freezerDays:90,tip:"El pollo a la plancha congela muy bien en porciones de 150 g. Descongelar en nevera 12 h y calentar suavemente.",
+    recipe:[{n:"Pollo sin piel",q:150,u:"g",prod:"pollo"}],
+    tasks:["Comprar el pollo fresco el día de batch","Planchar o hornear a 180 °C 20 min","Enfriar completamente","Porcionar 150 g con su jugo"]}},
+  {id:"cen7",slot:"cena",img:"🍆",name:"Berenjena + pavo",detail:"200 g berenjena · 150 g pavo sin piel · 1 cda. AOVE · postre: yogur",ex:{verduras:1,proteina:3,grasas:1,lacteo:.5},season:["berenjena","pavo","lacteo"],batch:{
+    group:"VER",freezerDays:90,tip:"La berenjena asada congela bien en porciones de 200 g. El pavo a la plancha, igual que el pollo.",
+    recipe:[{n:"Berenjena",q:200,u:"g",prod:"berenjena"},{n:"Pavo sin piel",q:150,u:"g",prod:"pavo"}],
+    tasks:["Asar la berenjena 25 min a 200 °C","Extraer la pulpa y escurrir","Porcionar 200 g","Planchar el pavo y congelar por separado"]}},
+];
+const byId = id => CATALOG.find(o => o.id === id);
+const catalogFor = slot => CATALOG.filter(o => o.slot === slot);
+
+const GROUP_COLORS = { LEG:"#7c3aed", VER:"#059669", SOP:"#0284c7", HID:"#d97706", PRO:"#e11d48" };
+
+/* ── Base de datos de ingredientes para el calculador de recetas ──
+   Valores por cada 100 g / 100 ml (o por unidad si u:"ud" y per:1).
+   kcal, carbs, prot, fat, fib en gramos. ex = aporte en intercambios
+   por cada 100 unidades (fruta 100 g ≈ 1 fruta; verdura 150 g ≈ 0,5;
+   lácteo 110 ml ≈ 0,5). Referencias: tablas compositiones españolas (BEDCA). */
+const INGREDIENTS = [
+  // Lácteos y bebidas vegetales
+  {id:"leche",n:"Leche desnatada",u:"ml",per:100,kcal:35,carbs:5,prot:3.5,fat:0.1,fib:0,prod:"lacteo",ex:{lacteo:.45}},
+  {id:"yogur",n:"Yogur natural desnatado",u:"g",per:100,kcal:50,carbs:5,prot:5,fat:0.3,fib:0,prod:"lacteo",ex:{lacteo:.45}},
+  {id:"kefir",n:"Kéfir de leche",u:"ml",per:100,kcal:50,carbs:4,prot:3,fat:1,fib:0,prod:"lacteo",ex:{lacteo:.45}},
+  {id:"queso_fresco",n:"Queso fresco batido desnatado",u:"g",per:100,kcal:71,carbs:4,prot:10,fat:1.5,fib:0,prod:"lacteo"},
+  {id:"requeson",n:"Requesón / cottage",u:"g",per:100,kcal:72,carbs:4,prot:12,fat:2,fib:0,prod:"lacteo"},
+  {id:"bebida_soja",n:"Bebida de soja",u:"ml",per:100,kcal:33,carbs:1,prot:3,fat:1.8,fib:0,prod:"bebida_vegetal"},
+  {id:"bebida_almendra",n:"Bebida de almendra sin azúcar",u:"ml",per:100,kcal:13,carbs:0.5,prot:0.5,fat:1.1,fib:0.3,prod:"bebida_vegetal"},
+  // Hidratos
+  {id:"pan_integral",n:"Pan integral",u:"g",per:100,kcal:247,carbs:41,prot:13,fat:3.5,fib:7,prod:"pan_integral"},
+  {id:"pan_centeno",n:"Pan de centeno",u:"g",per:100,kcal:240,carbs:48,prot:8,fat:3,fib:8,prod:"pan_integral"},
+  {id:"cereal",n:"Cereal integral sin azúcar",u:"g",per:100,kcal:370,carbs:65,prot:12,fat:6,fib:12,prod:"cereales_integrales"},
+  {id:"muesli",n:"Muesli sin azúcar",u:"g",per:100,kcal:380,carbs:60,prot:10,fat:10,fib:9,prod:"cereales_integrales"},
+  {id:"granola",n:"Granola sin azúcar",u:"g",per:100,kcal:420,carbs:55,prot:10,fat:20,fib:7,prod:"cereales_integrales"},
+  {id:"arroz",n:"Arroz integral cocido",u:"g",per:100,kcal:112,carbs:23,prot:2.6,fat:0.9,fib:1.8,prod:"arroz"},
+  {id:"pasta",n:"Pasta integral cocida",u:"g",per:100,kcal:124,carbs:25,prot:5,fat:1,fib:1.8,prod:"pasta"},
+  {id:"patata",n:"Patata cocida",u:"g",per:100,kcal:87,carbs:20,prot:2,fat:0.1,fib:2,prod:"patata"},
+  // Legumbres
+  {id:"lentejas",n:"Lentejas cocidas",u:"g",per:100,kcal:116,carbs:20,prot:9,fat:0.4,fib:8,prod:"lentejas"},
+  {id:"garbanzos",n:"Garbanzos cocidos",u:"g",per:100,kcal:164,carbs:27,prot:9,fat:2.6,fib:8,prod:"garbanzos"},
+  {id:"judias_blancas",n:"Judías blancas cocidas",u:"g",per:100,kcal:139,carbs:25,prot:10,fat:0.5,fib:7,prod:"judias_blancas"},
+  // Proteínas
+  {id:"huevo",n:"Huevo",u:"ud",per:1,kcal:79,carbs:0.4,prot:7,fat:5.2,fib:0,prod:"huevo"},
+  {id:"pollo",n:"Pollo sin piel",u:"g",per:100,kcal:120,carbs:0,prot:22,fat:2.6,fib:0,prod:"pollo"},
+  {id:"pavo",n:"Pavo / pechuga de pavo",u:"g",per:100,kcal:115,carbs:0,prot:23,fat:2,fib:0,prod:"pavo"},
+  {id:"cerdo",n:"Cerdo magro",u:"g",per:100,kcal:143,carbs:0,prot:21,fat:5,fib:0,prod:"pollo"},
+  {id:"pescado_blanco",n:"Pescado blanco",u:"g",per:100,kcal:90,carbs:0,prot:20,fat:1.5,fib:0,prod:"pescado_blanco"},
+  {id:"salmon",n:"Salmón / pescado azul",u:"g",per:100,kcal:208,carbs:0,prot:20,fat:13,fib:0,prod:"pescado_azul"},
+  {id:"atun",n:"Atún en conserva",u:"g",per:100,kcal:128,carbs:0,prot:28,fat:1,fib:0,prod:"atun"},
+  {id:"gambas",n:"Gambas",u:"g",per:100,kcal:99,carbs:0.2,prot:24,fat:1,fib:0,prod:"pescado_blanco"},
+  {id:"jamon",n:"Jamón cocido",u:"g",per:100,kcal:110,carbs:1,prot:18,fat:4,fib:0,prod:"pavo"},
+  {id:"salmon_ahumado",n:"Salmón ahumado",u:"g",per:100,kcal:117,carbs:0,prot:18,fat:4,fib:0,prod:"pescado_azul"},
+  // Grasas
+  {id:"aove",n:"Aceite de oliva virgen extra",u:"ml",per:100,kcal:884,carbs:0,prot:0,fat:100,fib:0,prod:"aove"},
+  {id:"nueces",n:"Nueces naturales",u:"g",per:100,kcal:654,carbs:14,prot:15,fat:65,fib:7,prod:"frutos_secos"},
+  {id:"almendras",n:"Almendras naturales",u:"g",per:100,kcal:579,carbs:22,prot:21,fat:50,fib:12,prod:"frutos_secos"},
+  {id:"avellanas",n:"Avellanas naturales",u:"g",per:100,kcal:628,carbs:17,prot:15,fat:61,fib:10,prod:"frutos_secos"},
+  {id:"pistachos",n:"Pistachos naturales",u:"g",per:100,kcal:560,carbs:28,prot:20,fat:45,fib:10,prod:"frutos_secos"},
+  {id:"pipas",n:"Pipas naturales",u:"g",per:100,kcal:570,carbs:20,prot:21,fat:50,fib:9,prod:"frutos_secos"},
+  {id:"lino",n:"Semillas de lino",u:"g",per:100,kcal:534,carbs:29,prot:18,fat:42,fib:27,prod:"frutos_secos"},
+  {id:"aguacate",n:"Aguacate",u:"g",per:100,kcal:160,carbs:9,prot:2,fat:15,fib:7,prod:"aguacate"},
+  // Frutas (100 g ≈ 1 intercambio de fruta)
+  {id:"manzana",n:"Manzana",u:"g",per:100,kcal:52,carbs:14,prot:0.3,fat:0.2,fib:2.4,prod:"manzana",ex:{frutas:1}},
+  {id:"naranja",n:"Naranja",u:"g",per:100,kcal:47,carbs:12,prot:0.9,fat:0.1,fib:2.4,prod:"naranja",ex:{frutas:1}},
+  {id:"pera",n:"Pera",u:"g",per:100,kcal:57,carbs:15,prot:0.4,fat:0.1,fib:3.1,prod:"pera",ex:{frutas:1}},
+  {id:"nectarina",n:"Nectarina",u:"g",per:100,kcal:44,carbs:11,prot:1,fat:0.3,fib:1.7,prod:"melocoton",ex:{frutas:1}},
+  {id:"ciruela",n:"Ciruela",u:"g",per:100,kcal:46,carbs:11,prot:0.7,fat:0.3,fib:1.4,prod:"ciruela",ex:{frutas:1}},
+  {id:"pina",n:"Piña",u:"g",per:100,kcal:50,carbs:13,prot:0.5,fat:0.1,fib:1.4,prod:"piña",ex:{frutas:1}},
+  {id:"kiwi",n:"Kiwi",u:"g",per:100,kcal:61,carbs:15,prot:1.1,fat:0.6,fib:3,prod:"kiwi",ex:{frutas:1}},
+  {id:"fresas",n:"Fresas",u:"g",per:100,kcal:32,carbs:8,prot:0.7,fat:0.3,fib:2,prod:"fresas",ex:{frutas:1}},
+  {id:"arandanos",n:"Arándanos",u:"g",per:100,kcal:57,carbs:14,prot:0.7,fat:0.3,fib:2.4,prod:"fresas",ex:{frutas:1}},
+  {id:"frambuesas",n:"Frambuesas",u:"g",per:100,kcal:52,carbs:12,prot:1.2,fat:0.7,fib:6.5,prod:"fresas",ex:{frutas:1}},
+  {id:"platano",n:"Plátano",u:"g",per:100,kcal:89,carbs:23,prot:1.1,fat:0.3,fib:2.6,prod:"platano",ex:{frutas:1}},
+  {id:"granada",n:"Granada",u:"g",per:100,kcal:83,carbs:19,prot:1.7,fat:1.2,fib:4,prod:"granada",ex:{frutas:1}},
+  {id:"mandarina",n:"Mandarina",u:"g",per:100,kcal:53,carbs:13,prot:0.8,fat:0.3,fib:1.8,prod:"mandarina",ex:{frutas:1}},
+  // Verduras (150 g ≈ 0,5 intercambio de verdura)
+  {id:"espinacas",n:"Espinacas",u:"g",per:100,kcal:23,carbs:3.6,prot:2.9,fat:0.4,fib:2.2,prod:"espinacas",ex:{verduras:.33}},
+  {id:"acelgas",n:"Acelgas",u:"g",per:100,kcal:19,carbs:3.7,prot:1.8,fat:0.2,fib:1.6,prod:"acelgas",ex:{verduras:.33}},
+  {id:"brocoli",n:"Brócoli",u:"g",per:100,kcal:34,carbs:7,prot:2.8,fat:0.4,fib:2.6,prod:"brocoli",ex:{verduras:.33}},
+  {id:"calabacin",n:"Calabacín",u:"g",per:100,kcal:17,carbs:3.1,prot:1.2,fat:0.3,fib:1,prod:"calabacin",ex:{verduras:.33}},
+  {id:"berenjena",n:"Berenjena",u:"g",per:100,kcal:25,carbs:6,prot:1,fat:0.2,fib:3,prod:"berenjena",ex:{verduras:.33}},
+  {id:"tomate",n:"Tomate",u:"g",per:100,kcal:18,carbs:3.9,prot:0.9,fat:0.2,fib:1.2,prod:"tomate",ex:{verduras:.33}},
+  {id:"lechuga",n:"Lechuga",u:"g",per:100,kcal:15,carbs:2.9,prot:1.4,fat:0.2,fib:1.3,prod:"lechuga",ex:{verduras:.33}},
+  {id:"champinones",n:"Champiñones",u:"g",per:100,kcal:22,carbs:3.3,prot:3.1,fat:0.3,fib:1,prod:"champinones",ex:{verduras:.33}},
+  {id:"setas",n:"Setas",u:"g",per:100,kcal:22,carbs:3.3,prot:3.1,fat:0.3,fib:1,prod:"setas",ex:{verduras:.33}},
+  {id:"judias_verdes",n:"Judías verdes",u:"g",per:100,kcal:31,carbs:7,prot:1.8,fat:0.2,fib:2.7,prod:"judias_verdes",ex:{verduras:.33}},
+  {id:"esparragos",n:"Espárragos trigueros",u:"g",per:100,kcal:20,carbs:3.9,prot:2.2,fat:0.1,fib:2.1,prod:"esparragos",ex:{verduras:.33}},
+  {id:"alcachofas",n:"Alcachofas",u:"g",per:100,kcal:47,carbs:11,prot:3.3,fat:0.2,fib:5.4,prod:"alcachofas",ex:{verduras:.33}},
+  {id:"calabaza",n:"Calabaza",u:"g",per:100,kcal:26,carbs:7,prot:1,fat:0.1,fib:0.5,prod:"calabaza",ex:{verduras:.33}},
+  {id:"zanahoria",n:"Zanahoria",u:"g",per:100,kcal:41,carbs:10,prot:0.9,fat:0.2,fib:2.8,prod:"zanahoria",ex:{verduras:.33}},
+  {id:"cebolla",n:"Cebolla",u:"g",per:100,kcal:40,carbs:9,prot:1.1,fat:0.1,fib:1.7,prod:"cebolla",ex:{verduras:.33}},
+  {id:"pimiento",n:"Pimiento",u:"g",per:100,kcal:31,carbs:6,prot:1,fat:0.3,fib:2.1,prod:"pimiento",ex:{verduras:.33}},
+];
+const ingById = id => INGREDIENTS.find(i => i.id === id);
+/* Cálculo nutricional de una receta y equivalencia en intercambios del plan:
+   hidratos = carbos/25 · proteínas = proteína/15,7 · grasas = grasa/18,8
+   (de tu plan: 4 intercambios = 100 g CH; 7 = 110 g proteína; 4 = 75 g grasa).
+   Lácteos/verduras/frutas se suman desde el aporte declarado de cada ingrediente. */
+function calcRecipe(items){
+  const t = {kcal:0,carbs:0,prot:0,fat:0,fib:0};
+  const ex = {lacteo:0,proteina:0,hidratos:0,verduras:0,frutas:0,grasas:0};
+  items.forEach(({ingId, qty}) => {
+    const g = ingById(ingId); if(!g || !(qty>0)) return;
+    const f = qty / g.per;
+    t.kcal += g.kcal*f; t.carbs += g.carbs*f; t.prot += g.prot*f; t.fat += g.fat*f; t.fib += g.fib*f;
+    if(g.ex) Object.keys(g.ex).forEach(k => ex[k]+=g.ex[k]*f);
+  });
+  ex.hidratos += t.carbs/25; ex.proteina += t.prot/15.7; ex.grasas += t.fat/18.8;
+  Object.keys(t).forEach(k => t[k]=Math.round(t[k]*10)/10);
+  Object.keys(ex).forEach(k => ex[k]=Math.round(ex[k]*10)/10);
+  return {totals:t, ex};
+}
+</script>
+
+<script>
+"use strict";
+/* ════════════════════════════════════════════════════════════
+   IndexedDB — nutriplan-db
+   weeks: clave weekStart · portions: clave id · logs: clave date
+   exercisePlan / exerciseRecords: reservados (módulos futuros)
+   ════════════════════════════════════════════════════════════ */
+const DB = (() => {
+  let db = null;
+  function open(){
+    return new Promise((res, rej) => {
+      const rq = indexedDB.open("nutriplan-db", 3);
+      rq.onupgradeneeded = e => {
+        const d = e.target.result;
+        if(!d.objectStoreNames.contains("weeks")) d.createObjectStore("weeks",{keyPath:"weekStart"});
+        if(!d.objectStoreNames.contains("portions")) d.createObjectStore("portions",{keyPath:"id"});
+        if(!d.objectStoreNames.contains("logs")) d.createObjectStore("logs",{keyPath:"date"});
+        if(!d.objectStoreNames.contains("pantry")) d.createObjectStore("pantry",{keyPath:"id"});
+        if(!d.objectStoreNames.contains("recipes")) d.createObjectStore("recipes",{keyPath:"id"});
+        if(!d.objectStoreNames.contains("exercisePlan")) d.createObjectStore("exercisePlan",{keyPath:"id"});
+        if(!d.objectStoreNames.contains("exerciseRecords")) d.createObjectStore("exerciseRecords",{keyPath:"id"});
+      };
+      rq.onsuccess = e => { db = e.target.result; res(db); };
+      rq.onerror = () => rej(rq.error);
+    });
+  }
+  function tx(store, mode){ return db.transaction(store, mode).objectStore(store); }
+  const wrap = rq => new Promise((res, rej) => { rq.onsuccess = () => res(rq.result); rq.onerror = () => rej(rq.error); });
+  return {
+    open,
+    put: (s,v) => wrap(tx(s,"readwrite").put(v)),
+    get: (s,k) => wrap(tx(s,"readonly").get(k)),
+    del: (s,k) => wrap(tx(s,"readwrite").delete(k)),
+    all: s => wrap(tx(s,"readonly").getAll()),
+    clear: s => wrap(tx(s,"readwrite").clear()),
+  };
+})();
+
+/* ════════════════════════════════════════════════════════════
+   Utilidades
+   ════════════════════════════════════════════════════════════ */
+const $ = sel => document.querySelector(sel);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const todayISO = () => iso(new Date());
+function addDays(isoDate, n){ const d = new Date(isoDate+"T00:00:00"); d.setDate(d.getDate()+n); return iso(d); }
+function fmtDate(isoDate){ return new Date(isoDate+"T00:00:00").toLocaleDateString("es-ES",{weekday:"short",day:"numeric",month:"short"}); }
+function fmtLong(isoDate){ return new Date(isoDate+"T00:00:00").toLocaleDateString("es-ES",{day:"numeric",month:"long",year:"numeric"}); }
+function weekStartOf(isoDate){ const d = new Date(isoDate+"T00:00:00"); const dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); return iso(d); }
+function currentWeekStart(){ return weekStartOf(todayISO()); }
+function isoWeekNum(isoDate){ const d=new Date(isoDate+"T00:00:00"); const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); const day=(t.getUTCDay()+6)%7; t.setUTCDate(t.getUTCDate()-day+3); const first=new Date(Date.UTC(t.getUTCFullYear(),0,4)); const fd=(first.getUTCDay()+6)%7; first.setUTCDate(first.getUTCDate()-fd+3); return 1+Math.round((t-first)/(7*86400000)); }
+function daysUntil(isoDate){ return Math.ceil((new Date(isoDate+"T00:00:00") - new Date(todayISO()+"T00:00:00"))/86400000); }
+function monthName(m){ return ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"][m-1]; }
+
+function emptyDay(){ const e = () => ({optionId:null,portionId:null,recipeId:null,customText:"",batchCook:false}); return { desayuno:e(), manana:e(), comida:e(), cena:e() }; }
+function emptyWeek(weekStart){ const days={}; DAYS.forEach(d=>days[d]=emptyDay()); return { weekStart, days, shoppingChecked:{}, shoppingBought:{}, tasksChecked:{}, pantryApplied:false }; }
+function emptyLog(date){ return { date, consumed:{desayuno:false,manana:false,comida:false,cena:false}, waterGlasses:0, notes:"" }; }
+
+/* ════════════════════════════════════════════════════════════
+   Estado global
+   ════════════════════════════════════════════════════════════ */
+const state = {
+  weekStart: currentWeekStart(),
+  week: null,
+  portions: [],
+  logs: {},
+  pantryMap: {},
+  recipes: [],
+  editMode: false,
+  route: location.hash.replace("#","") || "/",
+  planStep: 0,
+};
+
+async function loadState(){
+  state.week = (await DB.get("weeks", state.weekStart)) || emptyWeek(state.weekStart);
+  state.portions = await DB.all("portions");
+  const logs = await DB.all("logs");
+  logs.forEach(l => state.logs[l.date] = l);
+  state.pantryMap = {};
+  (await DB.all("pantry")).forEach(p => state.pantryMap[p.id] = p);
+  state.recipes = await DB.all("recipes");
+}
+async function saveWeek(){ await DB.put("weeks", state.week); }
+async function saveLog(log){ state.logs[log.date] = log; await DB.put("logs", log); }
+
+/* ── despensa ── */
+const pantryKey = (n,u) => n+"|"+u;
+const pantryGet = key => state.pantryMap[key] || null;
+async function pantryPut(rec){ state.pantryMap[rec.id]=rec; await DB.put("pantry",rec); }
+async function pantryAddDelta(key, name, unit, prod, delta){
+  const cur = pantryGet(key) || {id:key, name, unit, prod:prod||"", stock:0};
+  cur.stock = Math.max(0, Math.round((cur.stock + delta)*100)/100);
+  await pantryPut(cur);
+  return cur;
+}
+
+/* ── navegación ── */
+const ROUTES = [
+  {path:"/", label:"Panel", ic:"🏠"},
+  {path:"/menu", label:"Menú semanal", ic:"📅"},
+  {path:"/planificacion", label:"Planificación", ic:"🍳"},
+  {path:"/congelador", label:"Congelador", ic:"❄️"},
+  {path:"/despensa", label:"Despensa", ic:"🥫"},
+  {path:"/recetas", label:"Recetas", ic:"📝"},
+  {path:"/registro", label:"Registro", ic:"✅"},
+  {path:"/ejercicio", label:"Ejercicio", ic:"💪", soon:true},
+];
+function navHTML(){
+  return ROUTES.map(r =>
+    `<button class="tab ${state.route===r.path?"active":""}" data-nav="${r.path}">
+       <span class="ic">${r.ic}</span><span class="lb">${r.label}</span>${r.soon?'<span class="soon">futuro</span>':""}
+     </button>`).join("");
+}
+function renderNav(){ $("#tabsTop").innerHTML = navHTML(); $("#tabsBottom").innerHTML = navHTML(); }
+function go(path){ state.route = path; location.hash = path; render(); }
+
+/* ── temporada ── */
+function currentSeasonList(){
+  const m = new Date().getMonth()+1;
+  return Object.entries(PRODUCE).filter(([,p]) => p.months.includes(m));
+}
+function seasonBadgeHTML(keys){
+  const m = new Date().getMonth()+1;
+  const any = keys && keys.some(k => inSeason(k,m));
+  return any ? `<span class="badge b-green">🍂 De temporada</span>` : "";
+}
+function renderSeasonPill(){
+  const m = new Date().getMonth()+1;
+  const list = currentSeasonList().filter(([k]) => !["lentejas","garbanzos","judias_blancas","arroz","pasta","huevo","pollo","pavo","pescado_blanco","pescado_azul","atun","lacteo","frutos_secos","aove","pan_integral","aguacate","cereales_integrales","bebida_vegetal","piña"].includes(k));
+  const names = list.slice(0,4).map(([k]) => PRODUCE[k].emoji).join(" ");
+  $("#seasonPill").textContent = `En temporada en Madrid · ${monthName(m)}: ${names}…`;
+}
+</script>
+
+<script>
+"use strict";
+/* ════════════════════════════════════════════════════════════
+   Lógica de negocio compartida
+   ════════════════════════════════════════════════════════════ */
+function entryLabel(entry){
+  if(entry.portionId){ const p = state.portions.find(x=>x.id===entry.portionId); if(p) return {label:p.name, img:"❄️", frozen:true}; }
+  if(entry.recipeId){ const r = state.recipes.find(x=>x.id===entry.recipeId); if(r) return {label:r.name, img:"📝", frozen:false}; }
+  if(entry.optionId){ const o = byId(entry.optionId); if(o) return {label:o.name, img:o.img, frozen:false}; }
+  if(entry.customText) return {label:entry.customText, img:"✏️", frozen:false};
+  return null;
+}
+function batchCells(){ // celdas marcadas batch con opción congelable
+  const out=[];
+  DAYS.forEach(d => SLOTS.forEach(s => {
+    const e = state.week.days[d][s];
+    if(e.batchCook && e.optionId){ const o=byId(e.optionId); if(o && o.batch) out.push({day:d,slot:s,option:o,entry:e}); }
+  }));
+  return out;
+}
+function optionOccurrences(){ // veces que cada opción aparece en la semana (celdas frescas)
+  const m = new Map();
+  DAYS.forEach(d => SLOTS.forEach(s => {
+    const e = state.week.days[d][s];
+    if(e.optionId && !e.portionId) m.set(e.optionId, (m.get(e.optionId)||0)+1);
+  }));
+  return m;
+}
+function batchCountFor(optionId){ let n=0; DAYS.forEach(d=>{ const s=byId(optionId).slot; const e=state.week.days[d][s]; if(e.optionId===optionId&&e.batchCook) n++; }); return n; }
+/* Lista de la compra: teórico = desayuno + media mañana (todas las tomas) + comida/cena batch;
+   sugerido = teórico − stock de despensa; comprado = cantidad real introducida por el usuario. */
+function shoppingList(){
+  const map = new Map();
+  const add = (r, factor) => {
+    const key = pantryKey(r.n, r.u);
+    if(!map.has(key)) map.set(key, {key, n:r.n, u:r.u, q:0, prod:r.prod});
+    map.get(key).q += r.q * factor;
+  };
+  optionOccurrences().forEach((count, oid) => {
+    const o = byId(oid); if(!o || !o.recipe) return;
+    if(o.slot==="desayuno" || o.slot==="manana"){ o.recipe.forEach(r => add(r, count)); }
+    else { const bc = batchCountFor(oid); if(bc>0) o.recipe.forEach(r => add(r, bc)); }
+  });
+  return [...map.values()].map(i => {
+    const stock = pantryGet(i.key)?.stock || 0;
+    const bought = state.week.shoppingBought[i.key] || 0;
+    return {...i, stock, bought, sug: Math.max(0, Math.round((i.q - stock)*100)/100)};
+  }).sort((a,b)=>a.n.localeCompare(b.n,"es"));
+}
+function availablePortions(slot){
+  return state.portions.filter(p => !p.consumed && p.count>0 && p.slot===slot);
+}
+function dayExchanges(day){
+  const t = {lacteo:0,proteina:0,hidratos:0,verduras:0,frutas:0,grasas:0};
+  SLOTS.forEach(s => {
+    const e = state.week.days[day][s];
+    let ex = null;
+    if(e.portionId){ const p=state.portions.find(x=>x.id===e.portionId); if(p){ const o=byId(p.optionId); if(o) ex=o.ex; } }
+    else if(e.recipeId){ const r=state.recipes.find(x=>x.id===e.recipeId); if(r) ex=r.ex; }
+    else if(e.optionId){ const o=byId(e.optionId); if(o) ex=o.ex; }
+    if(ex) Object.keys(t).forEach(g => t[g]+=ex[g]||0);
+  });
+  return t;
+}
+function balanceHTML(day){
+  const t = dayExchanges(day);
+  const diffs = GROUPS.filter(g => Math.abs(t[g]-DAILY_EXCHANGES[g])>0.01);
+  if(diffs.length===0) return `<span class="badge b-green">✓ Intercambios equilibrados</span>`;
+  const txt = diffs.map(g => `${GROUP_LABELS[g]} ${t[g]}/${DAILY_EXCHANGES[g]}`).join(" · ");
+  return `<span class="badge b-amber">⚠ ${esc(txt)}</span>`;
+}
+function expiryBadge(p){
+  const d = daysUntil(p.expires);
+  if(d<0) return `<span class="badge b-red">caducada hace ${-d} días</span>`;
+  if(d<=7) return `<span class="badge b-red">⏳ ${d} días</span>`;
+  if(d<=14) return `<span class="badge b-amber">⏳ ${d} días</span>`;
+  return `<span class="badge b-green">✓ ${d} días</span>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   MOTOR DE SUSTITUCIÓN ESTACIONAL
+   Detecta ingestas planificadas con ingredientes fuera de
+   temporada en Madrid y propone alternativas del catálogo de
+   la MISMA toma con idéntico perfil de intercambios y máximo
+   aprovechamiento de lo que está de temporada este mes.
+   ════════════════════════════════════════════════════════════ */
+const exEqual = (a,b) => GROUPS.every(g => Math.abs((a[g]||0)-(b[g]||0))<0.01);
+function outOfSeasonKeys(o, m){ return (o.season||[]).filter(k => PRODUCE[k] && !PRODUCE[k].months.includes(m)); }
+function inSeasonCount(o, m){ return (o.season||[]).filter(k => PRODUCE[k] && PRODUCE[k].months.includes(m)).length; }
+function seasonalSuggestions(){
+  const m = new Date().getMonth()+1;
+  const out = [];
+  DAYS.forEach(d => SLOTS.forEach(s => {
+    const e = state.week.days[d][s];
+    if(!e.optionId || e.portionId || e.recipeId) return; // solo opciones frescas del catálogo
+    const cur = byId(e.optionId); if(!cur) return;
+    const lost = outOfSeasonKeys(cur, m);
+    if(!lost.length) return;
+    // candidatas: misma toma, mismos intercambios, sin ingredientes fuera de temporada
+    const cands = catalogFor(s).filter(o => o.id!==cur.id && exEqual(o.ex, cur.ex) && outOfSeasonKeys(o,m).length===0)
+      .sort((a,b)=> inSeasonCount(b,m)-inSeasonCount(a,m));
+    if(cands.length) out.push({day:d, slot:s, current:cur, lost, best:cands[0], more:cands.length-1});
+  }));
+  return out;
+}
+function seasonalEngineHTML(){
+  const m = new Date().getMonth()+1;
+  const sug = seasonalSuggestions();
+  if(!sug.length) return "";
+  return `<div class="card">
+    <h2>🍂 Motor de sustitución estacional <span class="badge b-green">${sug.length} propuestas</span></h2>
+    <p class="small muted" style="margin-bottom:10px">Estas ingestas de tu menú usan ingredientes que <b>ya no están de temporada en Madrid</b> (${monthName(m)}). Se proponen alternativas del plan con los mismos intercambios y máximo aprovechamiento de temporada:</p>
+    ${sug.map(({day,slot,current,lost,best,more})=>`<div class="portion">
+      <div class="foodchip g2" style="width:42px;height:42px;min-width:42px;font-size:1.15rem;border-radius:12px">${current.img}</div>
+      <div class="grow">
+        <div class="name" style="font-size:.83rem">${DAY_LABELS[day]} · ${SLOT_LABELS[slot]}</div>
+        <div class="small">${esc(current.name)} <span class="badge b-amber">fuera de temporada: ${lost.map(k=>PRODUCE_LABELS[k]).join(", ")}</span></div>
+        <div class="small" style="margin-top:3px">➜ <b>${esc(best.name)}</b> ${seasonBadgeHTML(best.season)} ${more>0?`<span class="muted">(+${more} más)</span>`:""}</div>
+      </div>
+      <button class="btn soft sm" data-action="season-apply" data-day="${day}" data-slot="${slot}" data-opt="${best.id}">Sustituir</button>
+    </div>`).join("")}
+    <div class="btn-row" style="margin-top:8px"><button class="btn primary sm" data-action="season-apply-all">🍂 Aplicar todas las sustituciones</button></div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   VISTA · Panel
+   ════════════════════════════════════════════════════════════ */
+function renderPanel(){
+  const today = todayISO();
+  const dow = DAYS[(new Date().getDay()+6)%7];
+  const day = state.week.days[dow];
+  const log = state.logs[today] || emptyLog(today);
+  const freezer = state.portions.filter(p=>!p.consumed && p.count>0);
+  const weekDates = DAYS.map((_,i)=>addDays(state.weekStart,i));
+  const doneWeek = weekDates.reduce((a,d)=>{ const l=state.logs[d]; return a + (l?SLOTS.filter(s=>l.consumed[s]).length:0); },0);
+  const weekPct = Math.round(doneWeek/28*100);
+  const planned = SLOTS.filter(s=>entryLabel(day[s])).length;
+  const seasonal = currentSeasonList().filter(([k])=>!["lentejas","garbanzos","judias_blancas","arroz","pasta","huevo","pollo","pavo","pescado_blanco","pescado_azul","atun","lacteo","frutos_secos","aove","pan_integral","aguacate","cereales_integrales","bebida_vegetal","piña"].includes(k));
+
+  return `<div class="view active">
+  <div class="card">
+    <h2>👋 Hola, buen día <span class="muted small" style="font-weight:400">· ${fmtLong(today)}</span></h2>
+    <p class="muted small">Plan de ${PLAN.kcal} kcal/día · Prioriza productos de temporada en Madrid para mejor sabor, precio y nutrición.</p>
+    <div class="produce-strip" style="margin-top:10px">
+      ${seasonal.map(([k,p])=>`<div class="produce"><div class="pe">${p.emoji}</div><div class="pn">${PRODUCE_LABELS[k]}</div><div class="pm">de temporada</div></div>`).join("")}
+    </div>
+  </div>
+
+  <div class="grid cols-4">
+    <div class="kpi"><div class="kl">Menú de hoy</div><div class="kv">${planned}<small>/4 tomas</small></div></div>
+    <div class="kpi"><div class="kl">Hidratación</div><div class="kv">${log.waterGlasses}<small>/ ${PLAN.waterGlasses} vasos</small></div><div class="progress" style="margin-top:7px"><i style="width:${Math.min(100,log.waterGlasses/PLAN.waterGlasses*100)}%"></i></div></div>
+    <div class="kpi"><div class="kl">Congelador</div><div class="kv">${freezer.reduce((a,p)=>a+p.count,0)}<small> porciones</small></div><div class="small muted" style="margin-top:4px">${freezer.length} envases en stock</div></div>
+    <div class="kpi"><div class="kl">Adherencia semanal</div><div class="kv">${weekPct}%</div><div class="progress" style="margin-top:7px"><i style="width:${weekPct}%"></i></div></div>
+  </div>
+
+  ${seasonalEngineHTML()}
+
+  <div class="grid cols-2" style="margin-top:16px">
+    <div class="card">
+      <h2>🍽️ Tomas de hoy <button class="btn soft sm" data-nav="/registro" style="margin-left:auto">Registrar →</button></h2>
+      ${SLOTS.map(s=>{
+        const en=day[s]; const info=entryLabel(en);
+        const done=log.consumed[s];
+        return `<div class="meal ${done?"done":""}" data-action="toggle-meal" data-date="${today}" data-slot="${s}">
+          <div class="foodchip g${(SLOTS.indexOf(s)%6)+1} mini" style="width:40px;height:40px;min-width:40px;font-size:1.1rem;border-radius:12px">${info?info.img:"·"}</div>
+          <div class="grow"><div class="mslot">${SLOT_LABELS[s]}</div>
+          <div class="mt">${info?esc(info.label):"Sin planificar"}</div>
+          ${en.batchCook?'<span class="badge b-sky">🍳 batch</span>':""} ${en.portionId?'<span class="badge b-sky">❄️ congelada</span>':""}</div>
+          <div class="state">✓</div></div>`;
+      }).join("")}
+    </div>
+    <div class="card">
+      <h2>🎯 Tus intercambios diarios</h2>
+      <div class="grid cols-3">
+        ${GROUPS.map(g=>`<div class="kpi" style="text-align:center"><div class="kv" style="font-size:1.3rem">${DAILY_EXCHANGES[g]}</div><div class="kl">${GROUP_LABELS[g]}</div></div>`).join("")}
+      </div>
+      <h3>💪 Ejercicio <span class="badge b-gray">módulos futuros</span></h3>
+      <p class="small muted">Planificación y Control de ejercicio: contratos de datos preparados para su activación.</p>
+      <button class="btn outline sm" data-nav="/ejercicio">Ver estructura preparada</button>
+    </div>
+  </div></div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   VISTA · Menú semanal (con alteraciones)
+   ════════════════════════════════════════════════════════════ */
+function cellHTML(day, slot, editable=true){
+  const e = state.week.days[day][slot];
+  const info = entryLabel(e);
+  const o = e.optionId ? byId(e.optionId) : null;
+  const m = new Date().getMonth()+1;
+  const canFreeze = o && o.batch;
+  const portions = availablePortions(slot);
+  const selVal = e.portionId ? "por:"+e.portionId : e.recipeId ? "rec:"+e.recipeId : e.optionId ? "opt:"+e.optionId : "";
+  const seasonKeys = o ? o.season : (e.portionId ? (byId(state.portions.find(p=>p.id===e.portionId)?.optionId||"")?.season||[]) : []);
+  return `<div class="cell">
+    <div class="emoji-preview">
+      <div class="foodchip g${(SLOTS.indexOf(slot)%6)+1} mini">${info?info.img:"❔"}</div>
+      <div style="min-width:0">${seasonBadgeHTML(seasonKeys)}${e.portionId?'<span class="badge b-sky">❄️ porción</span>':""}${e.recipeId?'<span class="badge b-orange">📝 receta</span>':""}${e.batchCook?'<span class="badge b-purple">🍳 batch</span>':""}</div>
+    </div>
+    ${editable?`<select data-action="cell-select" data-day="${day}" data-slot="${slot}">
+      <option value="">— Elegir —</option>
+      <optgroup label="🍳 Opciones del plan">${catalogFor(slot).map(x=>`<option value="opt:${x.id}" ${selVal==="opt:"+x.id?"selected":""}>${x.img} ${esc(x.name)}</option>`).join("")}</optgroup>
+      ${portions.length?`<optgroup label="❄️ Porciones del congelador">${portions.map(p=>`<option value="por:${p.id}" ${selVal==="por:"+p.id?"selected":""}>${p.code} · ${esc(p.name)} (×${p.count})</option>`).join("")}</optgroup>`:""}
+      ${state.recipes.length?`<optgroup label="📝 Mis recetas (${SLOT_LABELS[slot]})">${state.recipes.filter(r=>!r.slot||r.slot===slot).map(r=>`<option value="rec:${r.id}" ${selVal==="rec:"+r.id?"selected":""}>📝 ${esc(r.name)}</option>`).join("")}</optgroup>`:""}
+    </select>
+    ${canFreeze?`<div class="chipline"><input type="checkbox" data-action="cell-batch" data-day="${day}" data-slot="${slot}" ${e.batchCook?"checked":""} id="bb-${day}-${slot}"><label for="bb-${day}-${slot}">🍳 cocinar en batch y congelar</label></div>`:""}
+    ${!selVal?`<input class="txt" style="margin-top:6px;padding:7px 9px;font-size:.74rem" placeholder="O escribe tu toma…" value="${esc(e.customText)}" data-action="cell-custom" data-day="${day}" data-slot="${slot}">`:""}
+    <div style="margin-top:6px" class="btn-row">
+      ${state.editMode?`<button class="btn soft sm" data-action="alter" data-day="${day}" data-slot="${slot}">🔀 Alterar</button>
+      <button class="btn danger-soft sm" data-action="cell-clear" data-day="${day}" data-slot="${slot}" title="Borrar lo planificado en esta ingesta">🗑 Borrar</button>`:""}
+    </div>`
+    :`<div class="small">${info?esc(info.label):"—"}</div>`}
+  </div>`;
+}
+
+function renderMenu(){
+  const dates = DAYS.map((_,i)=>addDays(state.weekStart,i));
+  return `<div class="view active">
+  <div class="card">
+    <div class="weekbar">
+      <button class="iconbtn" data-action="week-prev">‹</button>
+      <span class="wdate">Semana del ${fmtDate(state.weekStart)}</span>
+      <button class="iconbtn" data-action="week-next">›</button>
+      ${state.weekStart!==currentWeekStart()?'<button class="btn soft sm" data-action="week-now">Semana actual</button>':""}
+      <div style="margin-left:auto" class="btn-row">
+        <button class="btn outline sm ${state.editMode?"danger-soft":""}" data-action="edit-toggle">${state.editMode?"✏️ Salir del modo edición":"✏️ Modo edición"}</button>
+        <button class="btn outline sm" data-action="menu-random">🎲 Menú aleatorio</button>
+      </div>
+    </div>
+    ${state.editMode?'<div class="notice warn" style="margin-bottom:10px">✏️ <div><b>Modo edición activo:</b> cada ingesta muestra un botón 🗑 para borrar lo planificado (opción, porción, receta, texto y marca batch).</div></div>':""}
+    <div class="weekgrid-wrap"><table class="weekgrid">
+      <thead><tr><th>Toma</th>${DAYS.map((d,i)=>`<th>${DAY_LABELS[d]}<span class="dnum">${fmtDate(dates[i])}</span></th>`).join("")}</tr></thead>
+      <tbody>
+        ${SLOTS.map(s=>`<tr><td class="rowhead">${SLOT_LABELS[s]}</td>${DAYS.map(d=>`<td>${cellHTML(d,s)}</td>`).join("")}</tr>`).join("")}
+      </tbody>
+    </table></div>
+    <p class="small muted" style="margin-top:10px">🍂 = plato con ingredientes de temporada en Madrid · ❄️ = toma servida desde el congelador · 📝 = receta propia. Activa el <b>✏️ modo edición</b> para alterar, borrar o intercambiar ingestas y ver el equilibrio de intercambios.</p>
+  </div>
+  <div class="${state.editMode?"grid cols-2":""}">
+    ${state.editMode?`<div class="card"><h2>⚖️ Equilibrio de intercambios por día</h2>
+      <p class="small muted" style="margin-bottom:8px">Visible en modo edición: comprueba tras cada 🔀 alteración o 🗑 borrado que el día sigue cuadrando con tu plan.</p>
+      ${DAYS.map((d,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)"><span class="small"><b>${DAY_LABELS[d]}</b> <span class="muted">${fmtDate(dates[i])}</span></span>${balanceHTML(d)}</div>`).join("")}
+    </div>`:""}
+    <div class="card"><h2>🧊 Menú diario según congelador</h2>
+      <p class="small muted" style="margin-bottom:10px">Tomas de comida y cena ya cubiertas con porciones congeladas esta semana:</p>
+      ${DAYS.map(d=>{ const c=state.week.days[d].comida, ce=state.week.days[d].cena;
+        const pc=c.portionId?state.portions.find(p=>p.id===c.portionId):null, pce=ce.portionId?state.portions.find(p=>p.id===ce.portionId):null;
+        if(!pc&&!pce) return "";
+        return `<div style="padding:8px 0;border-bottom:1px dashed var(--line)"><b class="small">${DAY_LABELS[d]}</b><div class="small">${pc?`🍽️ ${esc(pc.name)} <span class="badge b-sky">${pc.code}</span>`:""} ${pce?`<br>🌙 ${esc(pce.name)} <span class="badge b-sky">${pce.code}</span>`:""}</div></div>`;
+      }).join("") || '<div class="empty">Aún no has enlazado porciones del congelador a tus tomas.</div>'}
+    </div>
+  </div></div>`;
+}
+</script>
+
+<script>
+"use strict";
+/* ════════════════════════════════════════════════════════════
+   VISTA · Planificación batch (5 pasos)
+   ════════════════════════════════════════════════════════════ */
+const PLAN_STEPS = [
+  {t:"Compra", s:"Lista de la compra"},
+  {t:"Batch cooking", s:"Ejecución paso a paso"},
+  {t:"Congelación", s:"Códigos y caducidad"},
+  {t:"Menú diario", s:"Según congelador"},
+  {t:"Alteraciones", s:"Reestructurar menús"},
+];
+function portionsForOption(optionId){
+  return state.portions.filter(p=>p.optionId===optionId && !p.consumed && p.count>0);
+}
+function renderPlan(){
+  const cells = batchCells();
+  const step = state.planStep;
+  let body = "";
+  if(step===0) body = stepShopping(cells);
+  else if(step===1) body = stepBatch(cells);
+  else if(step===2) body = stepFreeze(cells);
+  else if(step===3) body = stepDailyMenu();
+  else body = stepAlterations();
+
+  return `<div class="view active">
+  <div class="card">
+    <h2>🍳 Planificación de batch cooking <span class="badge b-green">Semana ${isoWeekNum(state.weekStart)}</span></h2>
+    <p class="small muted">Ciclo completo: compra → cocina en batch → congelación por porciones → menú diario → alteraciones con reequilibrio.</p>
+    <div class="steps" style="margin-top:12px">
+      ${PLAN_STEPS.map((s,i)=>`<button class="step ${i===step?"active":""} ${i<step?"done":""}" data-action="plan-step" data-step="${i}">
+        <span class="n">${i<step?"✓":i+1}</span><span class="t">${s.t}</span><span class="s">${s.s}</span></button>`).join("")}
+    </div>
+    ${body}
+    <div class="btn-row" style="margin-top:16px;justify-content:space-between">
+      <button class="btn outline sm" data-action="plan-step" data-step="${Math.max(0,step-1)}" ${step===0?"disabled":""}>← Anterior</button>
+      <button class="btn primary sm" data-action="plan-step" data-step="${Math.min(4,step+1)}" ${step===4?"disabled":""}>Siguiente →</button>
+    </div>
+  </div></div>`;
+}
+
+/* ── Paso 1 · Compra de alimentos ── */
+function stepShopping(cells){
+  const list = shoppingList();
+  if(!list.length) return `<div class="notice warn">⚠️ <div>Primero rellena el <b><a href="#/menu" style="color:inherit">menú semanal</a></b>. La lista incluye automáticamente <b>desayunos, medias mañanas y tomas batch</b>, y descuenta lo que ya tienes en la <b><a href="#/despensa" style="color:inherit">despensa</a></b>.</div></div>
+    <div class="empty">Menú vacío: elige opciones en la rejilla semanal.</div>`;
+  const m = new Date().getMonth()+1;
+  const seasonal = list.filter(i=>inSeason(i.prod,m)), other = list.filter(i=>!inSeason(i.prod,m));
+  const row = i => {
+    const key = i.key;
+    const chk = state.week.shoppingChecked[key] ? "checked" : "";
+    return `<div class="shopping-item ${chk?"checked":""}">
+      <input type="checkbox" class="check" data-action="shop-check" data-key="${esc(key)}" ${chk} id="sh-${esc(key)}">
+      <div class="foodchip g2" style="width:40px;height:40px;min-width:40px;font-size:1.05rem;border-radius:11px">${seasonEmoji(i.prod)}</div>
+      <label for="sh-${esc(key)}" style="flex:1;font-size:.85rem;min-width:120px">${esc(i.n)} ${inSeason(i.prod,m)?'<span class="badge b-green">🍂 temporada</span>':""}</label>
+      <span class="qty" style="text-align:right;line-height:1.35">
+        Teórico <b>${i.q}</b> ${esc(i.u)}<br>
+        <span class="muted" style="font-weight:400">Despensa ${i.stock} · <b style="color:var(--emerald-d)">comprar ${i.sug}</b></span>
+      </span>
+      <label class="small muted" style="text-align:center">Comprado<br>
+        <input type="number" min="0" step="any" value="${i.bought||""}" placeholder="0" style="width:74px;margin-top:2px" data-action="shop-bought" data-key="${esc(key)}" data-name="${esc(i.n)}" data-unit="${esc(i.u)}" data-prod="${esc(i.prod||"")}">
+      </label></div>`;
+  };
+  return `<h3>🧺 Lista de la compra</h3>
+  <p class="small muted" style="margin-bottom:10px">Teórico = necesidad calculada del menú (desayuno, media mañana y batch) · Despensa = stock disponible arrastrado de semanas anteriores · <b>Comprado</b> = cantidad real que traes del supermercado: se descuenta automáticamente de las compras de las siguientes semanas.</p>
+  ${seasonal.length?`<h3 style="color:var(--emerald-d)">🍂 De temporada en Madrid (${monthName(m)})</h3>${seasonal.map(row).join("")}`:""}
+  ${other.length?`<h3>🛒 Resto de la compra</h3>${other.map(row).join("")}`:""}
+  <div class="notice ok" style="margin-top:10px">💡 <div>Compra primero lo de temporada: es más fresco, más barato y con más nutrientes. El pescado y la carne para congelar, pídelos lo más fresco posible y congela el mismo día.</div></div>
+  <div class="btn-row">
+    <button class="btn soft sm" data-nav="/despensa">🥫 Abrir despensa</button>
+    <button class="btn outline sm" data-action="pantry-apply" ${state.week.pantryApplied?"disabled":""}>${state.week.pantryApplied?"✓ Consumo de la semana aplicado":"📉 Aplicar consumo de esta semana a la despensa"}</button>
+  </div>`;
+}
+
+/* ── Paso 2 · Ejecución del batch cooking ── */
+function stepBatch(cells){
+  if(!cells.length) return `<div class="notice warn">⚠️ <div>No hay tomas batch marcadas. Actívalas en el <b><a href="#/menu" style="color:inherit">menú semanal</a></b>.</div></div>`;
+  const byOpt = new Map();
+  cells.forEach(c => { if(!byOpt.has(c.option.id)) byOpt.set(c.option.id,{option:c.option,count:0,days:[]}); const g=byOpt.get(c.option.id); g.count++; g.days.push(c.day); });
+  const order = {LEG:0,HID:1,VER:2,SOP:3,PRO:4};
+  const groups = [...byOpt.values()].sort((a,b)=>order[a.option.batch.group]-order[b.option.batch.group]);
+  return `<h3>👨‍🍳 Ejecución del batch cooking</h3>
+  <div class="notice ok">📋 <div><b>Orden recomendado:</b> primero legumbres e hidratos (lo que más tarda), después verduras, sopas y por último proteínas. Marca cada tarea conforme la completes.</div></div>
+  ${groups.map(({option,count,days})=>`
+    <div class="portion" style="align-items:flex-start">
+      <div class="foodchip g1">${option.img}</div>
+      <div class="grow">
+        <div class="name">${esc(option.name)} <span class="badge b-gray">×${count} (${days.map(d=>DAY_LABELS[d].slice(0,3)).join(", ")})</span></div>
+        <div class="meta">${esc(option.batch.tip)}</div>
+        ${option.batch.tasks.map((t,i)=>{
+          const key = option.id+"|"+i;
+          const chk = state.week.tasksChecked[key]?"checked":"";
+          return `<div class="task ${chk?"checked":""}"><input type="checkbox" data-action="task-check" data-key="${esc(key)}" ${chk} id="tk-${esc(key)}"><label class="tx" for="tk-${esc(key)}">${esc(t)}</label></div>`;
+        }).join("")}
+      </div>
+    </div>`).join("")}`;
+}
+
+/* ── Paso 3 · Congelación por porciones ── */
+function stepFreeze(cells){
+  if(!cells.length) return `<div class="notice warn">⚠️ <div>Marca tomas batch en el menú semanal para generar porciones congeladas con código y fecha de caducidad.</div></div>`;
+  const byOpt = new Map();
+  cells.forEach(c => { if(!byOpt.has(c.option.id)) byOpt.set(c.option.id,{option:c.option,count:0}); byOpt.get(c.option.id).count++; });
+  const wk = isoWeekNum(state.weekStart);
+  let seq = {};
+  return `<h3>❄️ Congelación por porciones</h3>
+  <div class="notice ok">🏷️ <div><b>Sistema de codificación:</b> cada envase lleva la etiqueta <code>B&lt;semana&gt;-&lt;grupo&gt;-&lt;nº&gt;</code> (B${wk}-LEG-01, B${wk}-SOP-02…) + fecha de congelación y fecha de caducidad. Caducidad = congelación + días máximos del alimento.</div></div>
+  <p class="small muted" style="margin-bottom:10px">Genera los envases, ajusta cantidades y fechas, y registra el día de congelación real.</p>
+  ${[...byOpt.values()].map(({option,count})=>{
+    const existing = portionsForOption(option.id);
+    const color = GROUP_COLORS[option.batch.group] || "#6b7280";
+    if(existing.length){
+      return `<div class="portion">
+        <div class="foodchip g3" style="font-size:1.3rem">${option.img}</div>
+        <div class="grow"><div class="name">${esc(option.name)}</div>
+        <div class="meta">${existing.length} envase(s) registrado(s)</div></div>
+        <button class="btn danger-soft sm" data-action="portion-delete-option" data-option="${option.id}">Eliminar</button></div>
+      ${existing.map(p=>portionRow(p,color)).join("")}`;
+    }
+    seq[option.batch.group] = (seq[option.batch.group]||0)+1;
+    const code = `B${wk}-${option.batch.group}-${String(seq[option.batch.group]).padStart(2,"0")}`;
+    return `<div class="portion">
+      <div class="foodchip g1">${option.img}</div>
+      <div class="grow">
+        <div class="name">${esc(option.name)}</div>
+        <div class="meta">${count} porción(es) · caducidad a ${option.batch.freezerDays} días</div>
+        <div class="btn-row" style="margin-top:8px">
+          <span class="code" style="background:${color}">${code}</span>
+          <label class="small muted">Congelación <input type="date" value="${todayISO()}" id="fdate-${option.id}"></label>
+          <button class="btn primary sm" data-action="portion-create" data-option="${option.id}" data-code="${code}" data-count="${count}">❄️ Registrar ${count} envase(s)</button>
+        </div>
+      </div></div>`;
+  }).join("")}
+  <h3>📦 Envases ya registrados esta semana</h3>
+  ${state.portions.filter(p=>!p.consumed&&p.count>0).length ? state.portions.filter(p=>!p.consumed&&p.count>0).map(p=>portionRow(p,GROUP_COLORS[(byId(p.optionId)?.batch?.group)||"LEG"]||"#6b7280")).join("") : '<div class="empty">Todavía no hay envases en el inventario.</div>'}`;
+}
+function portionRow(p,color){
+  const o = byId(p.optionId);
+  return `<div class="portion">
+    <span class="code" style="background:${color}">${p.code}</span>
+    <div class="foodchip g3" style="width:42px;height:42px;min-width:42px;font-size:1.15rem;border-radius:12px">${o?o.img:"❄️"}</div>
+    <div class="grow">
+      <div class="name">${esc(p.name)}</div>
+      <div class="meta">×${p.count} · congelado ${fmtDate(p.dateFrozen)} · caduca ${fmtDate(p.expires)}</div>
+    </div>
+    ${expiryBadge(p)}
+  </div>`;
+}
+
+/* ── Paso 4 · Menú diario según porciones congeladas ── */
+function stepDailyMenu(){
+  const dates = DAYS.map((_,i)=>addDays(state.weekStart,i));
+  const used = {};
+  DAYS.forEach(d=>SLOTS.forEach(s=>{ const e=state.week.days[d][s]; if(e.portionId) used[e.portionId]=(used[e.portionId]||0)+1; }));
+  const rows = DAYS.map((d,i)=>{
+    const items = SLOTS.map(s=>{ const e=state.week.days[d][s]; if(!e.portionId) return null; const p=state.portions.find(x=>x.id===e.portionId); if(!p) return null;
+      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0"><span>${s==="comida"?"🍽️":"🌙"}</span><span class="small" style="flex:1">${esc(p.name)}</span><span class="code" style="background:${GROUP_COLORS[(byId(p.optionId)?.batch?.group)||"LEG"]||"#6b7280"};font-size:.68rem;padding:3px 7px">${p.code}</span></div>`; }).filter(Boolean).join("");
+    return items?`<div style="border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px"><b class="small">${DAY_LABELS[d]} <span class="muted">${fmtDate(dates[i])}</span></b>${items}</div>`:"";
+  }).join("");
+  return `<h3>🗓️ Menú diario en función de las porciones congeladas</h3>
+  <p class="small muted" style="margin-bottom:10px">Descongela en nevera la noche anterior (o al fuego las sopas). Las porciones caducadas no se asignan al menú.</p>
+  ${rows || '<div class="empty">Aún no has enlazado porciones a tus tomas. Hazlo desde la rejilla del <a href="#/menu">menú semanal</a>: en comida o cena elige la opción «❄️ Porciones del congelador».</div>'}
+  <div class="btn-row" style="margin-top:8px"><a class="btn soft sm" href="#/menu" data-nav="/menu">📅 Abrir menú semanal</a><a class="btn outline sm" href="#/congelador" data-nav="/congelador">❄️ Ver inventario completo</a></div>`;
+}
+
+/* ── Paso 5 · Alteraciones con reestructuración ── */
+function stepAlterations(){
+  const dates = DAYS.map((_,i)=>addDays(state.weekStart,i));
+  return `<h3>🔀 Alteraciones con reestructuración de menús</h3>
+  <div class="notice ok">🔁 <div><b>Cómo funciona:</b> si un día cambian tus planes (cena fuera, producto caducado, antojo), usa «🔀 Alterar» sobre cualquier toma de comida/cena para: elegir otra opción, asignar otra porción del congelador o <b>intercambiar tomas entre días</b>. Después, comprueba el equilibrio de intercambios: la app marca con ⚠ los días que se descuadran del objetivo.</div></div>
+  <div class="grid cols-2">
+    <div>
+      <h3>Selecciona la toma a alterar</h3>
+      ${DAYS.map((d,i)=>{ const c=state.week.days[d].comida, ce=state.week.days[d].cena;
+        const ic=entryLabel(c), ice=entryLabel(ce);
+        return `<div style="border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px">
+          <b class="small">${DAY_LABELS[d]} <span class="muted">${fmtDate(dates[i])}</span></b> ${balanceHTML(d)}
+          <div style="margin-top:7px" class="btn-row">
+            <button class="btn outline sm" data-action="alter" data-day="${d}" data-slot="comida">🍽️ ${ic?esc(ic.label):"Comida"}</button>
+            <button class="btn outline sm" data-action="alter" data-day="${d}" data-slot="cena">🌙 ${ice?esc(ice.label):"Cena"}</button>
+          </div></div>`; }).join("")}
+    </div>
+    <div>
+      <h3>Intercambio rápido entre días</h3>
+      <p class="small muted" style="margin-bottom:8px">Elige dos tomas (comida o cena) para intercambiarlas de un solo gesto:</p>
+      <div id="swapPick">
+        ${DAYS.map(d=>`<div style="display:flex;gap:8px;margin-bottom:6px">
+          <button class="btn soft sm" style="flex:1" data-action="swap-pick" data-key="${d}|comida">${DAY_LABELS[d]} · Comida</button>
+          <button class="btn soft sm" style="flex:1" data-action="swap-pick" data-key="${d}|cena">${DAY_LABELS[d]} · Cena</button>
+        </div>`).join("")}
+      </div>
+      <div class="notice warn" id="swapHint">👆 Selecciona la primera toma…</div>
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   VISTA · Despensa
+   ════════════════════════════════════════════════════════════ */
+function renderPantry(){
+  const items = Object.values(state.pantryMap).sort((a,b)=>a.name.localeCompare(b.name,"es"));
+  const m = new Date().getMonth()+1;
+  return `<div class="view active">
+  <div class="card">
+    <h2>🥫 Despensa <span class="badge b-orange">${items.length} productos</span></h2>
+    <p class="small muted" style="margin-bottom:12px">Stock persistente entre semanas: <b>+ cantidad real comprada</b> en la lista de la compra, <b>− consumo teórico</b> del menú cuando aplicas la semana. Así, las necesidades teóricas de las siguientes semanas ya descuentan lo que te sobra.</p>
+    <div class="btn-row" style="margin-bottom:14px">
+      <button class="btn outline sm" data-action="pantry-apply" ${state.week.pantryApplied?"disabled":""}>${state.week.pantryApplied?"✓ Consumo de la semana ya aplicado":"📉 Aplicar consumo de la semana actual"}</button>
+      <button class="btn soft sm" data-nav="/planificacion">🧺 Ir a la lista de la compra</button>
+    </div>
+    <h3>➕ Añadir producto a mano</h3>
+    <div class="btn-row" style="align-items:flex-end;flex-wrap:wrap">
+      <div style="flex:2;min-width:150px"><label class="fld">Producto</label><input class="txt" id="pantryName" placeholder="Ej.: Tomate triturado"></div>
+      <div style="flex:1;min-width:80px"><label class="fld">Unidad</label><input class="txt" id="pantryUnit" placeholder="g / ml / ud"></div>
+      <div style="flex:1;min-width:80px"><label class="fld">Cantidad</label><input class="txt" id="pantryQty" type="number" min="0" step="any" placeholder="0"></div>
+      <button class="btn primary sm" data-action="pantry-add">Añadir</button>
+    </div>
+    <h3>📦 Stock actual</h3>
+    ${items.length?items.map(p=>`<div class="portion">
+      <div class="foodchip g6" style="width:42px;height:42px;min-width:42px;font-size:1.15rem;border-radius:12px">${seasonEmoji(p.prod)}</div>
+      <div class="grow">
+        <div class="name">${esc(p.name)} ${inSeason(p.prod,m)?'<span class="badge b-green">🍂 temporada</span>':""}</div>
+        <div class="meta">${esc(p.unit)} · ${p.stock>0?"disponible":"agotado"}</div>
+      </div>
+      <div class="btn-row" style="flex-wrap:nowrap">
+        <button class="iconbtn" data-action="pantry-adj" data-id="${esc(p.id)}" data-delta="-1">−</button>
+        <b style="min-width:56px;text-align:center">${p.stock}</b>
+        <button class="iconbtn" data-action="pantry-adj" data-id="${esc(p.id)}" data-delta="1">＋</button>
+        <button class="iconbtn" title="Eliminar" data-action="pantry-del" data-id="${esc(p.id)}">🗑</button>
+      </div>
+    </div>`).join(""):'<div class="empty">Despensa vacía. La compra de esta semana irá sumando stock aquí.</div>'}
+  </div></div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   VISTA · Recetas (constructor con cálculo nutricional)
+   ════════════════════════════════════════════════════════════ */
+let recItems = []; // [{ingId, qty}] del constructor actual
+let recNameVal = "";
+let recSlotVal = "comida"; // toma a la que pertenece la receta
+
+function macroBar(label, g, pct, target, color){
+  const diff = Math.round(pct-target);
+  return `<div style="margin-bottom:9px">
+    <div style="display:flex;justify-content:space-between;font-size:.74rem"><b>${label}</b><span class="muted">${g} g · ${pct}% kcal <span class="badge ${Math.abs(diff)<=6?"b-green":"b-amber"}" style="margin-left:4px">objetivo ${target}%${Math.abs(diff)>6?" (Δ"+(diff>0?"+":"")+diff+")":""}</span></span></div>
+    <div class="progress"><i style="width:${Math.min(100,pct)}%;background:${color}"></i></div></div>`;
+}
+function renderRecipes(){
+  const calc = calcRecipe(recItems);
+  const {kcal,carbs,prot,fat,fib} = calc.totals;
+  const kcalMacro = carbs*4 + prot*4 + fat*9 || 1;
+  const pctC = Math.round(carbs*4/kcalMacro*100), pctP = Math.round(prot*4/kcalMacro*100), pctG = Math.round(fat*9/kcalMacro*100);
+  return `<div class="view active">
+  <div class="card">
+    <h2>📝 Creador de recetas <span class="badge b-orange">cálculo nutricional automático</span></h2>
+    <p class="small muted" style="margin-bottom:12px">Construye una receta con los ingredientes del plan y obtén sus calorías, macros, fibra y su equivalencia en <b>intercambios</b>, comparada con la distribución objetivo de tu plan (30% CH · 30% Prot · 40% Grasa). Las recetas guardadas se pueden asignar a cualquier ingesta del menú semanal.</p>
+    <div class="grid cols-2">
+      <div>
+        <label class="fld">Nombre de la receta</label>
+        <input class="txt" id="recName" data-action="rec-name" value="${esc(recNameVal)}" placeholder="Ej.: Ensalada de quinoa y pollo">
+        <label class="fld">Tipo de toma</label>
+        <select id="recSlot" class="txt" data-action="rec-slot">${SLOTS.map(s=>`<option value="${s}" ${recSlotVal===s?"selected":""}>${SLOT_LABELS[s]}</option>`).join("")}</select>
+        <label class="fld">Añadir ingrediente</label>
+        <div class="btn-row" style="align-items:flex-end">
+          <select id="recIng" class="txt" style="flex:2">${INGREDIENTS.map(g=>`<option value="${g.id}">${seasonEmoji(g.prod)} ${g.n} (${g.u==="ud"?"unidad":"/100 "+g.u})</option>`).join("")}</select>
+          <input id="recQty" type="number" min="0" step="any" placeholder="Cant." style="width:90px" value="100">
+          <button class="btn primary sm" data-action="rec-add-ing">＋ Añadir</button>
+        </div>
+        <div style="margin-top:12px">
+          ${recItems.length?recItems.map((it,i)=>{ const g=ingById(it.ingId); return `<div class="portion" style="padding:8px 11px">
+            <div class="foodchip g${(i%6)+1}" style="width:36px;height:36px;min-width:36px;font-size:1rem;border-radius:10px">${seasonEmoji(g.prod)}</div>
+            <div class="grow"><div class="name" style="font-size:.82rem">${esc(g.n)}</div><div class="meta">${it.qty} ${g.u}</div></div>
+            <button class="iconbtn" data-action="rec-del-ing" data-i="${i}">🗑</button></div>`; }).join(""):'<div class="empty">Añade ingredientes para calcular la receta.</div>'}
+        </div>
+      </div>
+      <div>
+        <h3>📊 Valor nutricional de la receta</h3>
+        <div class="grid cols-2" style="gap:10px;margin-bottom:10px">
+          <div class="kpi"><div class="kl">Energía</div><div class="kv">${kcal}<small> kcal</small></div></div>
+          <div class="kpi"><div class="kl">Fibra</div><div class="kv">${fib}<small> g</small></div></div>
+        </div>
+        ${macroBar("Carbohidratos", carbs, pctC, 30, "linear-gradient(90deg,#fbbf24,#d97706)")}
+        ${macroBar("Proteína", prot, pctP, 30, "linear-gradient(90deg,#f87171,#e11d48)")}
+        ${macroBar("Grasa", fat, pctG, 40, "linear-gradient(90deg,#818cf8,#6d28d9)")}
+        <h3>🔁 Equivalencia en intercambios del plan</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+          ${GROUPS.map(g=>`<span class="badge ${calc.ex[g]>0?"b-green":"b-gray"}">${GROUP_LABELS[g]}: <b>${calc.ex[g]}</b></span>`).join("")}
+        </div>
+        <p class="small muted" style="margin-bottom:10px">Referencia de tu plan: 1 intercambio ≈ 25 g de hidratos · 15,7 g de proteína · 18,8 g de grasa; fruta 100 g = 1 · verdura 150 g = 0,5 · lácteo 110 ml = 0,5.</p>
+        <div class="btn-row">
+          <button class="btn primary" data-action="rec-save" ${recItems.length?"":"disabled"}>💾 Guardar receta</button>
+          <button class="btn outline sm" data-action="rec-clear">🧹 Vaciar constructor</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>📚 Mis recetas <span class="badge b-orange">${state.recipes.length}</span></h2>
+    ${state.recipes.length?state.recipes.map(r=>{ const c=r.totals; return `<div class="portion">
+      <div class="foodchip g5" style="width:44px;height:44px;min-width:44px;font-size:1.2rem;border-radius:12px">📝</div>
+      <div class="grow">
+        <div class="name">${esc(r.name)} ${r.slot?`<span class="badge b-purple">${SLOT_LABELS[r.slot]}</span>`:""}</div>
+        <div class="meta">${c.kcal} kcal · CH ${c.carbs} g · Prot ${c.prot} g · Grasa ${c.fat} g · Fibra ${c.fib} g · ${r.items.length} ingredientes</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${GROUPS.filter(g=>r.ex[g]>0).map(g=>`<span class="badge b-gray" style="font-size:.62rem">${GROUP_LABELS[g]} ${r.ex[g]}</span>`).join("")}</div>
+      </div>
+      <div class="btn-row" style="flex-wrap:nowrap">
+        <button class="btn soft sm" data-nav="/menu">Usar en menú ↓</button>
+        <button class="iconbtn" title="Eliminar receta" data-action="rec-del" data-id="${r.id}">🗑</button>
+      </div></div>`; }).join(""):'<div class="empty">Todavía no has guardado recetas. El constructor de arriba calcula la receta en tiempo real.</div>'}
+    <p class="small muted" style="margin-top:8px">Para usar una receta: abre el <a href="#/menu" data-nav="/menu">menú semanal</a>, elige la toma y selecciónala en «📝 Mis recetas», o pulsa «🔀 Alterar» sobre una ingesta ya planificada.</p>
+  </div></div>`;
+}
+
+function renderFreezer(){
+  const act = state.portions.filter(p=>!p.consumed&&p.count>0).sort((a,b)=>a.dateFrozen.localeCompare(b.dateFrozen));
+  const consumed = state.portions.filter(p=>p.consumed||p.count<=0);
+  return `<div class="view active">
+  <div class="card">
+    <h2>❄️ Inventario del congelador <span class="badge b-sky">${act.reduce((a,p)=>a+p.count,0)} porciones · ${act.length} envases</span></h2>
+    <p class="small muted" style="margin-bottom:12px">Códigos: <span class="code" style="background:#7c3aed">B·-LEG-</span> legumbres · <span class="code" style="background:#059669">B·-VER-</span> verduras · <span class="code" style="background:#0284c7">B·-SOP-</span> sopas · <span class="code" style="background:#d97706">B·-HID-</span> hidratos · <span class="code" style="background:#e11d48">B·-PRO-</span> proteínas. Consume siempre primero las más antiguas y respeta la caducidad.</p>
+    ${act.length?act.map(p=>{
+      const o=byId(p.optionId); const color=GROUP_COLORS[(o?.batch?.group)||"LEG"]||"#6b7280";
+      const assigned = DAYS.some(d=>SLOTS.some(s=>state.week.days[d][s].portionId===p.id));
+      return `<div class="portion">
+        <span class="code" style="background:${color}">${p.code}</span>
+        <div class="foodchip g3" style="width:44px;height:44px;min-width:44px;font-size:1.2rem;border-radius:12px">${o?o.img:"❄️"}</div>
+        <div class="grow">
+          <div class="name">${esc(p.name)} ${assigned?'<span class="badge b-purple">en menú</span>':""}</div>
+          <div class="meta">${SLOT_LABELS[p.slot]} · congelado ${fmtDate(p.dateFrozen)} · caduca ${fmtDate(p.expires)}</div>
+        </div>
+        <div class="btn-row" style="flex-wrap:nowrap">
+          ${expiryBadge(p)}
+          <button class="iconbtn" title="Consumir 1 porción" data-action="portion-consume" data-id="${p.id}">−1</button>
+          <button class="iconbtn" title="Eliminar envase" data-action="portion-del" data-id="${p.id}">🗑</button>
+        </div>
+      </div>`;
+    }).join(""):'<div class="empty">Congelador vacío. Genera porciones en la <a href="#/planificacion">planificación batch</a>.</div>'}
+    ${consumed.length?`<h3>Historial de consumo <button class="btn outline sm" data-action="freezer-clean">Limpiar historial</button></h3>
+      ${consumed.slice(0,8).map(p=>`<div class="portion" style="opacity:.55"><span class="code" style="background:#9ca3af">${p.code}</span><div class="grow"><div class="name">${esc(p.name)}</div><div class="meta">consumido / agotado</div></div></div>`).join("")}`:""}
+  </div></div>`;
+}
+</script>
+
+<script>
+"use strict";
+/* ════════════════════════════════════════════════════════════
+   VISTA · Registro diario
+   ════════════════════════════════════════════════════════════ */
+let regDate = todayISO();
+function renderTracker(){
+  const log = state.logs[regDate] || emptyLog(regDate);
+  const dow = DAYS[(new Date(regDate+"T00:00:00").getDay()+6)%7];
+  const ws = weekStartOf(regDate);
+  const week = ws===state.weekStart ? state.week : null; // solo mostramos plan de la semana cargada
+  const day = week ? week.days[dow] : null;
+  // intercambios consumidos
+  const t = {lacteo:0,proteina:0,hidratos:0,verduras:0,frutas:0,grasas:0};
+  if(day) SLOTS.forEach(s=>{ if(!log.consumed[s]) return; const e=day[s]; let ex=null;
+    if(e.portionId){ const p=state.portions.find(x=>x.id===e.portionId); const o=p&&byId(p.optionId); if(o) ex=o.ex; }
+    else if(e.recipeId){ const r=state.recipes.find(x=>x.id===e.recipeId); if(r) ex=r.ex; }
+    else if(e.optionId){ const o=byId(e.optionId); if(o) ex=o.ex; }
+    if(ex) Object.keys(t).forEach(g=>t[g]+=ex[g]||0);
+  });
+  const doneMeals = SLOTS.filter(s=>log.consumed[s]).length;
+  const weekDates = [...Array(7)].map((_,i)=>addDays(ws,i));
+  const doneWeek = weekDates.reduce((a,d)=>{ const l=state.logs[d]; return a+(l?SLOTS.filter(s=>l.consumed[s]).length:0); },0);
+  return `<div class="view active">
+  <div class="card">
+    <div class="weekbar">
+      <button class="iconbtn" data-action="reg-prev">‹</button>
+      <span class="wdate">${fmtLong(regDate)}</span>
+      <button class="iconbtn" data-action="reg-next">›</button>
+      ${regDate!==todayISO()?'<button class="btn soft sm" data-action="reg-now">Hoy</button>':""}
+      <span class="badge b-green" style="margin-left:auto">Adherencia semanal: ${Math.round(doneWeek/28*100)}%</span>
+    </div>
+    <div class="grid cols-2">
+      <div>
+        <h3>Tomas del día ${day?"":"· <span class='badge b-gray'>menú no cargado (otra semana)</span>"}</h3>
+        ${SLOTS.map(s=>{
+          const e = day?day[s]:null; const info = e?entryLabel(e):null;
+          const done = log.consumed[s];
+          return `<div class="meal ${done?"done":""}" data-action="reg-toggle" data-slot="${s}">
+            <div class="foodchip g${(SLOTS.indexOf(s)%6)+1}" style="width:42px;height:42px;min-width:42px;font-size:1.15rem;border-radius:12px">${info?info.img:"·"}</div>
+            <div class="grow"><div class="mslot">${SLOT_LABELS[s]}</div>
+              <div class="mt">${info?esc(info.label):"Sin planificar"}</div>
+              ${e&&e.batchCook?'<span class="badge b-purple">🍳 batch</span>':""} ${e&&e.portionId?'<span class="badge b-sky">❄️ congelada</span>':""} ${e&&e.recipeId?'<span class="badge b-orange">📝 receta</span>':""}
+            </div><div class="state">✓</div></div>`;
+        }).join("")}
+        <label class="fld">Notas del día</label>
+        <textarea data-action="reg-notes" placeholder="Incidencias, comidas fuera de plan, sensaciones…">${esc(log.notes)}</textarea>
+      </div>
+      <div>
+        <h3>💧 Hidratación · objetivo ${PLAN.waterGlasses} vasos (2 L)</h3>
+        <div class="glasses">${[...Array(PLAN.waterGlasses)].map((_,i)=>`<button class="glass ${i<log.waterGlasses?"on":""}" data-action="reg-water" data-n="${i+1}">${i+1}</button>`).join("")}</div>
+        <div class="progress" style="margin-top:10px"><i style="width:${Math.min(100,log.waterGlasses/PLAN.waterGlasses*100)}%;background:linear-gradient(90deg,#38bdf8,#0284c7)"></i></div>
+        <h3>⚖️ Intercambios consumidos</h3>
+        ${GROUPS.map(g=>`<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:.74rem"><b>${GROUP_LABELS[g]}</b><span class="muted">${t[g]} / ${DAILY_EXCHANGES[g]}</span></div>
+          <div class="progress"><i style="width:${Math.min(100,t[g]/DAILY_EXCHANGES[g]*100)}%"></i></div></div>`).join("")}
+        <p class="small muted">Objetivo diario: ${PLAN.kcal} kcal · proteína ${PLAN.protG} g · hidratos ${PLAN.carbsG} g · grasa ${PLAN.fatG} g · fibra ${PLAN.fiberG} g.</p>
+        <div class="notice ${doneMeals===4?"ok":"warn"}" style="margin-top:8px">${doneMeals===4?"🎉":"📊"} <div>${doneMeals}/4 tomas registradas${doneMeals===4?" · ¡día completo!":" · sigue así"}.</div></div>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   VISTA · Ejercicio (módulos futuros preparados)
+   ════════════════════════════════════════════════════════════ */
+function renderExercise(){
+  const contract = (title, rows, store) => `<div class="card"><h2>${title} <span class="badge b-gray">activación futura</span></h2>
+    <table class="contract"><thead><tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr><td class="mono">${r[0]}</td><td class="mono">${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</tbody></table>
+    <p class="small muted" style="margin-top:8px">Almacenamiento reservado en IndexedDB: <code>${store}</code> — sin migración cuando se active.</p></div>`;
+  return `<div class="view active">
+  <div class="notice ok">💪 <div><b>Módulos preparados para el futuro.</b> Los tipos de datos y las tiendas de IndexedDB ya están definidos: al activarlos no será necesario migrar nada.</div></div>
+  ${contract("📅 Planificación de ejercicio", [
+    ["id","string","Identificador único de la sesión planificada"],
+    ["date","ISO date","Día en que se realizará la sesión"],
+    ["type","ExerciseType","fuerza · cardio · flexibilidad · movilidad · deporte"],
+    ["name","string","Nombre de la sesión (p. ej. «Tren inferior»)"],
+    ["durationMin","number","Duración prevista en minutos"],
+    ["intensity","Intensity","baja · moderada · alta"],
+    ["recurringDay","DayOfWeek?","Día de recurrencia semanal (opcional)"],
+    ["notes","string","Material, calentamiento, lesiones…"],
+  ], "exercisePlan")}
+  ${contract("📈 Control de ejercicio", [
+    ["id","string","Identificador único del registro"],
+    ["sessionId","string?","Sesión del plan a la que responde (opcional)"],
+    ["date","ISO date","Día en que se realizó"],
+    ["type","ExerciseType","fuerza · cardio · flexibilidad · movilidad · deporte"],
+    ["durationMin","number","Duración efectiva en minutos"],
+    ["intensity","Intensity","baja · moderada · alta"],
+    ["completed","boolean","Si se completó la sesión prevista"],
+    ["perceivedEffort","1–5","Esfuerzo percibido (RPE simplificado)"],
+    ["notes","string","Sensaciones e incidencias"],
+  ], "exerciseRecords")}</div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Diálogo de alteración de una toma
+   ════════════════════════════════════════════════════════════ */
+function openAlter(day, slot){
+  const e = state.week.days[day][slot];
+  const portions = availablePortions(slot).filter(p=>p.id!==e.portionId);
+  const swaps = [];
+  DAYS.forEach(d=>["comida","cena"].forEach(s=>{
+    if(d===day&&s===slot) return;
+    const info = entryLabel(state.week.days[d][s]);
+    swaps.push({d,s,label:info?info.label:"(vacía)"});
+  }));
+  openDialog(`<div class="dialog-head"><h3>🔀 Alterar · ${DAY_LABELS[day]} · ${SLOT_LABELS[slot]}</h3><button class="iconbtn" data-close>✕</button></div>
+  <div class="dialog-body">
+    <p class="small muted" style="margin-bottom:10px">Elige una nueva fuente para esta toma, o intercambia el contenido con otra toma. El equilibrio de intercambios del día se recalcula y avisa si se descuadra.</p>
+    <label class="fld">Cambiar a otra opción del plan</label>
+    ${catalogFor(slot).map(o=>`<div class="swap-row ${e.optionId===o.id&&!e.portionId?"sel":""}" data-action="alter-set" data-day="${day}" data-slot="${slot}" data-kind="opt" data-val="${o.id}">
+      <div class="foodchip g${(SLOTS.indexOf(slot)%6)+1}" style="width:36px;height:36px;min-width:36px;font-size:1rem;border-radius:10px">${o.img}</div>
+      <div style="flex:1">${esc(o.name)}<div class="small muted">${esc(o.detail.slice(0,70))}…</div></div>${seasonBadgeHTML(o.season)}</div>`).join("")}
+    ${portions.length?`<label class="fld">O usar una porción del congelador</label>
+      ${portions.map(p=>`<div class="swap-row" data-action="alter-set" data-day="${day}" data-slot="${slot}" data-kind="por" data-val="${p.id}">
+        <span class="code" style="background:${GROUP_COLORS[(byId(p.optionId)?.batch?.group)||"LEG"]||"#6b7280"};font-size:.68rem">${p.code}</span>        <div style="flex:1">${esc(p.name)} <span class="small muted">×${p.count} · caduca ${fmtDate(p.expires)}</span></div>${expiryBadge(p)}</div>`).join("")}`:""}
+    ${state.recipes.length?`<label class="fld">O usar una de mis recetas (${SLOT_LABELS[slot]})</label>
+      ${state.recipes.filter(r=>r.id!==e.recipeId && (!r.slot||r.slot===slot)).map(r=>`<div class="swap-row ${e.recipeId===r.id?"sel":""}" data-action="alter-set" data-day="${day}" data-slot="${slot}" data-kind="rec" data-val="${r.id}">
+        <div class="foodchip g5" style="width:34px;height:34px;min-width:34px;font-size:.95rem;border-radius:10px">📝</div>
+        <div style="flex:1">${esc(r.name)}<div class="small muted">${r.totals.kcal} kcal · ${r.items.length} ingredientes</div></div></div>`).join("")}`:""}
+    <label class="fld">O intercambiar con otra toma</label>
+    ${swaps.map(x=>`<div class="swap-row" data-action="alter-swap" data-day="${day}" data-slot="${slot}" data-tday="${x.d}" data-tslot="${x.s}">
+      ⇄ <b style="margin-left:6px">${DAY_LABELS[x.d]} · ${SLOT_LABELS[x.s]}</b><span class="small muted" style="margin-left:8px">${esc(x.label)}</span></div>`).join("")}
+    <label class="fld">O dejarla sin planificar / personalizada</label>
+    <input class="txt" placeholder="Toma personalizada (opcional)" id="alterCustom" value="${esc(e.customText||"")}">
+    <div class="btn-row" style="margin-top:10px">
+      <button class="btn outline sm" data-action="alter-set" data-day="${day}" data-slot="${slot}" data-kind="clear">🧹 Dejar sin planificar</button>
+      <button class="btn primary sm" data-action="alter-set-custom" data-day="${day}" data-slot="${slot}">💾 Guardar personalizada</button>
+    </div>
+  </div>`);
+}
+function setCell(day, slot, patch){
+  Object.assign(state.week.days[day][slot], {optionId:null,portionId:null,recipeId:null,customText:"",batchCook:false}, patch);
+  saveWeek(); closeDialog();
+  if(state.route==="/planificacion") render(); else render();
+}
+function swapCells(a, slotA, b, slotB){
+  const tmp = state.week.days[a][slotA];
+  state.week.days[a][slotA] = state.week.days[b][slotB];
+  state.week.days[b][slotB] = tmp;
+  saveWeek(); closeDialog(); render();
+}
+
+/* ── diálogo genérico ── */
+function openDialog(html){ const d=$("#dlg"); d.innerHTML=html; if(!d.open) d.showModal(); }
+function closeDialog(){ const d=$("#dlg"); if(d.open) d.close(); }
+$("#dlg").addEventListener("click", e => { if(e.target===$("#dlg")) closeDialog(); });
+</script>
+
+<script>
+"use strict";
+/* ════════════════════════════════════════════════════════════
+   Enrutador + render principal
+   ════════════════════════════════════════════════════════════ */
+function render(){
+  renderNav(); renderSeasonPill();
+  const v = $("#view");
+  if(state.route==="/menu") v.innerHTML = renderMenu();
+  else if(state.route==="/planificacion") v.innerHTML = renderPlan();
+  else if(state.route==="/congelador") v.innerHTML = renderFreezer();
+  else if(state.route==="/despensa") v.innerHTML = renderPantry();
+  else if(state.route==="/recetas") v.innerHTML = renderRecipes();
+  else if(state.route==="/registro") v.innerHTML = renderTracker();
+  else if(state.route==="/ejercicio") v.innerHTML = renderExercise();
+  else v.innerHTML = renderPanel();
+  window.scrollTo({top:0});
+}
+window.addEventListener("hashchange", ()=>{ state.route = location.hash.replace("#","") || "/"; render(); });
+
+/* ════════════════════════════════════════════════════════════
+   Eventos globales (delegación)
+   ════════════════════════════════════════════════════════════ */
+let swapFirst = null;
+
+document.addEventListener("click", async e => {
+  const nav = e.target.closest("[data-nav]");
+  if(nav){ e.preventDefault(); go(nav.dataset.nav); return; }
+  const close = e.target.closest("[data-close]");
+  if(close){ closeDialog(); return; }
+  const el = e.target.closest("[data-action]");
+  if(!el) return;
+  const a = el.dataset.action, d = el.dataset;
+
+  switch(a){
+    case "toggle-meal": case "reg-toggle": {
+      const date = a==="toggle-meal" ? d.date : regDate;
+      const log = state.logs[date] || emptyLog(date);
+      log.consumed[d.slot] = !log.consumed[d.slot];
+      await saveLog(log); render(); break;
+    }
+    case "reg-prev": regDate = addDays(regDate,-1); render(); break;
+    case "reg-next": regDate = addDays(regDate, 1); render(); break;
+    case "reg-now": regDate = todayISO(); render(); break;
+    case "reg-water": {
+      const log = state.logs[regDate] || emptyLog(regDate);
+      log.waterGlasses = log.waterGlasses===+d.n ? +d.n-1 : +d.n;
+      await saveLog(log); render(); break;
+    }
+    case "week-prev": case "week-next": case "week-now": {
+      const off = a==="week-prev"?-7:a==="week-next"?7:0;
+      state.weekStart = off?addDays(state.weekStart,off):currentWeekStart();
+      state.week = (await DB.get("weeks", state.weekStart)) || emptyWeek(state.weekStart);
+      render(); break;
+    }
+    case "menu-random": {
+      DAYS.forEach(day=>SLOTS.forEach(s=>{
+        const opts = catalogFor(s); const pick = opts[Math.floor(Math.random()*opts.length)];
+        state.week.days[day][s] = {optionId:pick.id,portionId:null,customText:"",batchCook:!!(pick.batch&&Math.random()<0.6)};
+      }));
+      await saveWeek(); render(); break;
+    }
+    case "season-apply": {
+      const en = state.week.days[d.day][d.slot];
+      Object.assign(en, {optionId:d.opt, portionId:null, recipeId:null, customText:"", batchCook:false});
+      await saveWeek(); render(); break;
+    }
+    case "season-apply-all": {
+      seasonalSuggestions().forEach(({day,slot,best}) => {
+        Object.assign(state.week.days[day][slot], {optionId:best.id, portionId:null, recipeId:null, customText:"", batchCook:false});
+      });
+      await saveWeek(); render(); break;
+    }
+    case "cell-batch": {
+      const en = state.week.days[d.day][d.slot];
+      en.batchCook = el.checked;
+      if(en.batchCook && !en.optionId){ en.batchCook=false; }
+      await saveWeek();
+      if(state.route==="/planificacion") render();
+      break;
+    }
+    case "shop-check": state.week.shoppingChecked[d.key]=el.checked; await saveWeek(); render(); break;
+    case "pantry-apply": {
+      if(state.week.pantryApplied) break;
+      const list = shoppingList();
+      for(const i of list){ if(i.q>0) await pantryAddDelta(i.key, i.n, i.u, i.prod, -i.q); }
+      state.week.pantryApplied = true; await saveWeek(); render(); break;
+    }
+    case "pantry-add": {
+      const n = $("#pantryName").value.trim(), u = $("#pantryUnit").value.trim()||"ud", q = parseFloat($("#pantryQty").value)||0;
+      if(!n) break;
+      await pantryAddDelta(pantryKey(n,u), n, u, "", q); render(); break;
+    }
+    case "pantry-adj": {
+      const p = state.pantryMap[d.id]; if(!p) break;
+      const step = (p.unit==="ud")?1:((p.unit==="ml"||p.unit==="g")?50:1);
+      await pantryAddDelta(p.id, p.name, p.unit, p.prod, step*parseFloat(d.delta)); render(); break;
+    }
+    case "pantry-del": { await DB.del("pantry",d.id); delete state.pantryMap[d.id]; render(); break; }
+    case "task-check": state.week.tasksChecked[d.key]=el.checked; await saveWeek(); render(); break;
+    case "plan-step": state.planStep=+d.step; render(); break;
+    case "portion-create": {
+      const o = byId(d.option);
+      const dateFrozen = ($("#fdate-"+o.id)||{}).value || todayISO();
+      const expires = addDays(dateFrozen, o.batch.freezerDays);
+      const portion = {id:uid(), code:d.code, optionId:o.id, name:o.name, slot:o.slot, count:+d.count, dateFrozen, expires, consumed:false};
+      await DB.put("portions", portion); state.portions.push(portion); render(); break;
+    }
+    case "portion-delete-option": {
+      state.portions.filter(p=>p.optionId===d.option&&!p.consumed).forEach(async p=>{ await DB.del("portions",p.id); });
+      state.portions = state.portions.filter(p=>p.optionId!==d.option||p.consumed);
+      render(); break;
+    }
+    case "portion-consume": {
+      const p = state.portions.find(x=>x.id===d.id); if(!p) break;
+      p.count--; if(p.count<=0) p.consumed=true;
+      await DB.put("portions",p); render(); break;
+    }
+    case "portion-del": {
+      await DB.del("portions",d.id);
+      state.portions = state.portions.filter(p=>p.id!==d.id);
+      DAYS.forEach(day=>SLOTS.forEach(s=>{ const en=state.week.days[day][s]; if(en.portionId===d.id){en.portionId=null;} }));
+      await saveWeek(); render(); break;
+    }
+    case "freezer-clean": {
+      for(const p of state.portions.filter(p=>p.consumed||p.count<=0)) await DB.del("portions",p.id);
+      state.portions = state.portions.filter(p=>!p.consumed&&p.count>0);
+      render(); break;
+    }
+    case "alter": openAlter(d.day, d.slot); break;
+    case "edit-toggle": state.editMode=!state.editMode; render(); break;
+    case "cell-clear": {
+      Object.assign(state.week.days[d.day][d.slot], {optionId:null,portionId:null,recipeId:null,customText:"",batchCook:false});
+      await saveWeek(); render(); break;
+    }
+    case "rec-add-ing": {
+      recNameVal = ($("#recName")||{}).value ?? recNameVal;
+      const ingId = $("#recIng").value, qty = parseFloat($("#recQty").value)||0;
+      if(ingId && qty>0){ recItems.push({ingId, qty}); render(); } break;
+    }
+    case "rec-del-ing": recItems.splice(+d.i,1); render(); break;
+    case "rec-clear": recItems = []; recNameVal = ""; render(); break;
+    case "rec-save": {
+      const name = (($("#recName")||{}).value ?? recNameVal).trim() || recNameVal.trim();
+      if(!name || !recItems.length) break;
+      const {totals, ex} = calcRecipe(recItems);
+      const rec = {id:uid(), name, slot:recSlotVal, items:recItems.map(x=>({...x})), totals, ex, createdAt:todayISO()};
+      await DB.put("recipes", rec); state.recipes.push(rec);
+      recItems = []; recNameVal = ""; render(); break;
+    }
+    case "rec-del": {
+      await DB.del("recipes", d.id);
+      state.recipes = state.recipes.filter(r=>r.id!==d.id);
+      DAYS.forEach(day=>SLOTS.forEach(s=>{ const en=state.week.days[day][s]; if(en.recipeId===d.id) en.recipeId=null; }));
+      await saveWeek(); render(); break;
+    }
+    case "alter-set": {
+      if(d.kind==="opt") setCell(d.day,d.slot,{optionId:d.val});
+      else if(d.kind==="por") setCell(d.day,d.slot,{portionId:d.val});
+      else if(d.kind==="rec") setCell(d.day,d.slot,{recipeId:d.val});
+      else setCell(d.day,d.slot,{});
+      break;
+    }
+    case "alter-set-custom": {
+      const v = $("#alterCustom").value.trim();
+      setCell(d.day,d.slot, v?{customText:v}:{});
+      break;
+    }
+    case "alter-swap": swapCells(d.day,d.slot,d.tday,d.tslot); break;
+    case "swap-pick": {
+      if(!swapFirst){ swapFirst = d.key; $("#swapHint").innerHTML = `👆 Primera toma: <b>${esc(d.key.replace("|"," · "))}</b> — ahora elige la segunda…`; }
+      else{
+        const [d1,s1]=swapFirst.split("|"), [d2,s2]=d.key.split("|");
+        swapFirst=null; swapCells(d1,s1,d2,s2);
+      }
+      break;
+    }
+  }
+});
+
+/* cambios en selects e inputs de texto */
+document.addEventListener("change", async e => {
+  const el = e.target.closest("[data-action]");
+  if(!el) return;
+  const a = el.dataset.action, d = el.dataset;
+  if(a==="cell-select"){
+    const en = state.week.days[d.day][d.slot];
+    if(el.value.startsWith("opt:")) Object.assign(en,{optionId:el.value.slice(4),portionId:null,recipeId:null,customText:""});
+    else if(el.value.startsWith("por:")) Object.assign(en,{portionId:el.value.slice(4),optionId:null,recipeId:null,customText:"",batchCook:false});
+    else if(el.value.startsWith("rec:")) Object.assign(en,{recipeId:el.value.slice(4),optionId:null,portionId:null,customText:"",batchCook:false});
+    else Object.assign(en,{optionId:null,portionId:null,recipeId:null,customText:""});
+    await saveWeek(); render();
+  }
+  if(a==="reg-notes"){ const log = state.logs[regDate]||emptyLog(regDate); log.notes=el.value; await saveLog(log); }
+  if(a==="rec-slot"){ recSlotVal = el.value; }
+  if(a==="cell-custom"){ state.week.days[d.day][d.slot].customText=el.value; await saveWeek(); }
+  if(a==="shop-bought"){
+    const val = Math.max(0, parseFloat(el.value)||0);
+    const old = state.week.shoppingBought[d.key]||0;
+    state.week.shoppingBought[d.key]=val;
+    await pantryAddDelta(d.key, d.name, d.unit, d.prod, val-old);
+    await saveWeek(); render();
+  }
+});
+document.addEventListener("input", e => {
+  const el = e.target.closest('[data-action="cell-custom"]');
+  if(el) state.week.days[el.dataset.day][el.dataset.slot].customText = el.value;
+  if(e.target.closest('[data-action="rec-name"]')) recNameVal = e.target.value;
+});
+document.addEventListener("keydown", e => { if(e.key==="Escape"){ closeDialog(); } });
+
+/* ════════════════════════════════════════════════════════════
+   Arranque
+   ════════════════════════════════════════════════════════════ */
+(async function init(){
+  await DB.open();
+  await loadState();
+  state.route = location.hash.replace("#","") || "/";
+  if(!ROUTES.some(r=>r.path===state.route)) state.route="/";
+  render();
+})();
+</script>
+</body>
+</html>
