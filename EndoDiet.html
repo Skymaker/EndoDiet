@@ -479,7 +479,195 @@ const INGREDIENTS = [
   {id:"cebolla",n:"Cebolla",u:"g",per:100,kcal:40,carbs:9,prot:1.1,fat:0.1,fib:1.7,prod:"cebolla",ex:{verduras:.33}},
   {id:"pimiento",n:"Pimiento",u:"g",per:100,kcal:31,carbs:6,prot:1,fat:0.3,fib:2.1,prod:"pimiento",ex:{verduras:.33}},
 ];
-const ingById = id => INGREDIENTS.find(i => i.id === id);
+/* ── Ingredientes: lista viva (base + personalizados) y ocultos ──
+   ALL_INGREDIENTS se reconstruye al cargar los personalizados desde
+   IndexedDB. Los de la base «borrados» pasan a hiddenIngIds: dejan de
+   aparecer en los selectores pero las recetas guardadas siguen
+   resolviéndolos (ingById busca en la lista completa). */
+let ALL_INGREDIENTS = INGREDIENTS.slice();
+let hiddenIngIds = [];
+function rebuildIngredients(){ ALL_INGREDIENTS = INGREDIENTS.concat(state.customIngs||[]); }
+function visibleIngredients(){ return ALL_INGREDIENTS.filter(g => !hiddenIngIds.includes(g.id)); }
+const ingById = id => ALL_INGREDIENTS.find(i => i.id === id);
+function ingEmoji(g){ return g.emoji || (g.cat && ING_CATS[g.cat] ? ING_CATS[g.cat].emoji : null) || seasonEmoji(g.prod); }
+
+/* Categorías para ingredientes personalizados: emoji e intercambio
+   especial automático (fruta 100 g ≈ 1 · verdura 150 g ≈ 0,5 ·
+   lácteo 110 ml ≈ 0,5, referidos a 100 unidades). */
+const ING_CATS = {
+  lacteo:  {label:"Lácteo",        emoji:"🥛", ex:{lacteo:.45}},
+  fruta:   {label:"Fruta",         emoji:"🍎", ex:{frutas:1}},
+  verdura: {label:"Verdura",       emoji:"🥬", ex:{verduras:.33}},
+  hidrato: {label:"Hidrato",       emoji:"🌾"},
+  proteina:{label:"Proteína",      emoji:"🍗"},
+  grasa:   {label:"Grasa",         emoji:"🥜"},
+  otro:    {label:"Otro / varios", emoji:"🧪"},
+};
+
+/* ── Base de datos de referencia nutricional (buscador) ──
+   Valores por 100 g / 100 ml. Fuentes: tablas de composición de
+   alimentos españolas (BEDCA / CESNID) y USDA para equivalencias. */
+const NUTRITION_DB = [
+  // Cereales e hidratos
+  {n:"Quinoa cocida",kcal:120,carbs:21,prot:4.4,fat:1.9,fib:2.8},
+  {n:"Cuscús cocido",kcal:112,carbs:23,prot:3.8,fat:0.3,fib:1.4},
+  {n:"Bulgur cocido",kcal:83,carbs:18.6,prot:3.1,fat:0.2,fib:4.5},
+  {n:"Avena en copos",kcal:379,carbs:67,prot:13,fat:7,fib:10},
+  {n:"Arroz blanco cocido",kcal:130,carbs:28,prot:2.7,fat:0.3,fib:0.4},
+  {n:"Pasta blanca cocida",kcal:158,carbs:31,prot:5.8,fat:0.9,fib:1.8},
+  {n:"Espelta cocida",kcal:127,carbs:26,prot:5.5,fat:1,fib:2.4},
+  {n:"Pan blanco",kcal:265,carbs:49,prot:9,fat:3.2,fib:2.7},
+  {n:"Baguette",kcal:274,carbs:52,prot:8.6,fat:3.5,fib:2.6},
+  {n:"Pan de molde",kcal:271,carbs:51,prot:8,fat:3.5,fib:2.4},
+  {n:"Tortitas de arroz",kcal:387,carbs:81,prot:6,fat:3,fib:4},
+  {n:"Galletas María",kcal:446,carbs:74,prot:7,fat:13,fib:3.3},
+  {n:"Croissant",kcal:406,carbs:46,prot:8.2,fat:21,fib:2.6},
+  {n:"Palomitas sin azúcar",kcal:387,carbs:78,prot:13,fat:4,fib:15},
+  {n:"Maíz dulce",kcal:96,carbs:21,prot:3.4,fat:1.5,fib:2.4},
+  {n:"Polenta cocida",kcal:70,carbs:15,prot:2,fat:0.3,fib:1.4},
+  {n:"Patatas fritas",kcal:312,carbs:41,prot:3.4,fat:15,fib:3.8},
+  {n:"Boniato cocido",kcal:76,carbs:17.7,prot:1.4,fat:0.1,fib:2.5},
+  {n:"Batata cocida",kcal:86,carbs:20,prot:1.6,fat:0.1,fib:3},
+  {n:"Harina de trigo integral",kcal:340,carbs:72,prot:13,fat:2,fib:12},
+  {n:"Harina de trigo blanca",kcal:364,carbs:76,prot:10,fat:1,fib:2.7},
+  // Lácteos y huevos
+  {n:"Leche entera",kcal:61,carbs:4.8,prot:3.3,fat:3.2,fib:0},
+  {n:"Leche semidesnatada",kcal:46,carbs:4.7,prot:3.3,fat:1.6,fib:0},
+  {n:"Yogur griego desnatado",kcal:59,carbs:3.6,prot:10,fat:0.4,fib:0},
+  {n:"Skyr",kcal:63,carbs:4,prot:11,fat:0.2,fib:0},
+  {n:"Queso manchego",kcal:408,carbs:0.5,prot:25,fat:34,fib:0},
+  {n:"Queso tierno",kcal:310,carbs:1,prot:22,fat:24,fib:0},
+  {n:"Mozzarella",kcal:300,carbs:2.2,prot:18,fat:22,fib:0},
+  {n:"Queso feta",kcal:264,carbs:4,prot:14,fat:21,fib:0},
+  {n:"Parmesano",kcal:431,carbs:4.4,prot:38,fat:29,fib:0},
+  {n:"Nata líquida para cocinar",kcal:225,carbs:3,prot:2.5,fat:23,fib:0},
+  {n:"Mantequilla",kcal:717,carbs:0.1,prot:0.9,fat:81,fib:0},
+  {n:"Helado de vainilla",kcal:207,carbs:24,prot:3.5,fat:11,fib:0.7},
+  {n:"Clara de huevo",kcal:52,carbs:0.7,prot:11,fat:0.2,fib:0},
+  {n:"Yema de huevo",kcal:322,carbs:3.6,prot:15.6,fat:26.5,fib:0},
+  {n:"Tortilla francesa",kcal:153,carbs:0.6,prot:10,fat:12,fib:0},
+  // Carnes, pescados y proteínas vegetales
+  {n:"Ternera magra (filete)",kcal:152,carbs:0,prot:21,fat:7,fib:0},
+  {n:"Cordero magro",kcal:203,carbs:0,prot:19,fat:13,fib:0},
+  {n:"Conejo",kcal:136,carbs:0,prot:20,fat:5.5,fib:0},
+  {n:"Hígado de ternera",kcal:140,carbs:3.9,prot:20,fat:4,fib:0},
+  {n:"Jamón serrano",kcal:241,carbs:0,prot:31,fat:13,fib:0},
+  {n:"Chorizo",kcal:455,carbs:2,prot:24,fat:38,fib:0},
+  {n:"Morcilla",kcal:367,carbs:2.5,prot:15,fat:33,fib:0},
+  {n:"Salchicha tipo Frankfurt",kcal:269,carbs:2,prot:10,fat:23,fib:0},
+  {n:"Bacalao fresco",kcal:82,carbs:0,prot:18,fat:0.7,fib:0},
+  {n:"Merluza",kcal:86,carbs:0,prot:19,fat:1,fib:0},
+  {n:"Rape",kcal:81,carbs:0,prot:19,fat:0.8,fib:0},
+  {n:"Rodaballo",kcal:91,carbs:0,prot:20,fat:1.9,fib:0},
+  {n:"Trucha",kcal:119,carbs:0,prot:18,fat:3.4,fib:0},
+  {n:"Pez espada",kcal:121,carbs:0,prot:20,fat:4,fib:0},
+  {n:"Caballa",kcal:205,carbs:0,prot:19,fat:14,fib:0},
+  {n:"Sardina",kcal:208,carbs:0,prot:25,fat:11,fib:0},
+  {n:"Boquerón",kcal:105,carbs:0,prot:18,fat:3,fib:0},
+  {n:"Anchoa en aceite",kcal:210,carbs:0,prot:29,fat:10,fib:0},
+  {n:"Mejillón",kcal:86,carbs:3.7,prot:12,fat:2.2,fib:0},
+  {n:"Almeja",kcal:86,carbs:4.4,prot:12,fat:1,fib:0},
+  {n:"Vieira",kcal:88,carbs:5,prot:17,fat:0.8,fib:0},
+  {n:"Langostino",kcal:89,carbs:0.5,prot:20,fat:1,fib:0},
+  {n:"Calamar",kcal:92,carbs:3.1,prot:15,fat:1.4,fib:0},
+  {n:"Sepia",kcal:79,carbs:0,prot:16,fat:1,fib:0},
+  {n:"Pulpo",kcal:82,carbs:2.2,prot:15,fat:1,fib:0},
+  {n:"Tofu",kcal:76,carbs:1.9,prot:8,fat:4.8,fib:0.3},
+  {n:"Tempeh",kcal:192,carbs:7.6,prot:20,fat:11,fib:0},
+  {n:"Seitán",kcal:142,carbs:4,prot:25,fat:1.9,fib:0.8},
+  {n:"Proteína texturizada de soja",kcal:362,carbs:33,prot:50,fat:1.9,fib:17},
+  {n:"Edamame",kcal:122,carbs:8.9,prot:11,fat:5,fib:5.2},
+  // Frutas
+  {n:"Sandía",kcal:30,carbs:7.6,prot:0.6,fat:0.2,fib:0.4},
+  {n:"Melón",kcal:34,carbs:8.2,prot:0.8,fat:0.2,fib:0.9},
+  {n:"Uva",kcal:69,carbs:18,prot:0.7,fat:0.2,fib:0.9},
+  {n:"Cereza",kcal:50,carbs:12,prot:0.9,fat:0.3,fib:1.6},
+  {n:"Albaricoque",kcal:48,carbs:11,prot:1.4,fat:0.4,fib:2},
+  {n:"Higo fresco",kcal:74,carbs:19,prot:0.8,fat:0.3,fib:2.9},
+  {n:"Pomelo",kcal:42,carbs:10.7,prot:0.8,fat:0.1,fib:1.6},
+  {n:"Mango",kcal:60,carbs:15,prot:0.8,fat:0.4,fib:1.6},
+  {n:"Papaya",kcal:43,carbs:11,prot:0.5,fat:0.3,fib:1.7},
+  {n:"Coco fresco",kcal:354,carbs:15,prot:3.3,fat:33,fib:9},
+  {n:"Uvas pasas",kcal:299,carbs:79,prot:3.1,fat:0.5,fib:3.7},
+  {n:"Dátiles",kcal:277,carbs:75,prot:1.8,fat:0.2,fib:6.7},
+  {n:"Caqui",kcal:70,carbs:18.6,prot:0.6,fat:0.2,fib:3.6},
+  {n:"Chirimoya",kcal:75,carbs:17.7,prot:1.6,fat:0.7,fib:3},
+  // Verduras
+  {n:"Coles de Bruselas",kcal:43,carbs:8.9,prot:3.4,fat:0.3,fib:3.8},
+  {n:"Col",kcal:25,carbs:5.8,prot:1.3,fat:0.1,fib:2.5},
+  {n:"Coliflor",kcal:25,carbs:5,prot:1.9,fat:0.3,fib:2},
+  {n:"Kale",kcal:49,carbs:8.8,prot:4.3,fat:0.9,fib:3.6},
+  {n:"Rúcula",kcal:25,carbs:3.7,prot:2.6,fat:0.7,fib:1.6},
+  {n:"Canónigos",kcal:21,carbs:3.6,prot:2,fat:0.4,fib:1.8},
+  {n:"Escarola",kcal:17,carbs:3.4,prot:1.3,fat:0.2,fib:3.1},
+  {n:"Apio",kcal:16,carbs:3,prot:0.7,fat:0.2,fib:1.6},
+  {n:"Pepino",kcal:15,carbs:3.6,prot:0.7,fat:0.1,fib:0.5},
+  {n:"Rábano",kcal:16,carbs:3.4,prot:0.7,fat:0.1,fib:1.6},
+  {n:"Remolacha",kcal:43,carbs:9.6,prot:1.6,fat:0.2,fib:2.8},
+  {n:"Puerro",kcal:31,carbs:6,prot:1.5,fat:0.3,fib:1.8},
+  {n:"Ajo",kcal:149,carbs:33,prot:6.4,fat:0.5,fib:2.1},
+  {n:"Jengibre",kcal:80,carbs:18,prot:1.8,fat:0.8,fib:2},
+  {n:"Chirivía",kcal:75,carbs:18,prot:1.2,fat:0.3,fib:4.9},
+  {n:"Hinojo",kcal:31,carbs:7.3,prot:1.2,fat:0.2,fib:3.1},
+  {n:"Guisantes",kcal:81,carbs:14.5,prot:5.4,fat:0.4,fib:5.7},
+  {n:"Aceitunas verdes",kcal:115,carbs:6,prot:0.8,fat:10.7,fib:3.2},
+  {n:"Tomate triturado (conserva)",kcal:29,carbs:4.4,prot:1.6,fat:0.5,fib:1.4},
+  // Frutos secos, grasas y otros
+  {n:"Anacardos",kcal:553,carbs:30,prot:18,fat:44,fib:3.3},
+  {n:"Nueces de macadamia",kcal:718,carbs:14,prot:7.6,fat:76,fib:8.6},
+  {n:"Piñones",kcal:673,carbs:13,prot:13.7,fat:68,fib:3.7},
+  {n:"Nueces pecanas",kcal:691,carbs:14,prot:9.2,fat:72,fib:9.6},
+  {n:"Nueces de Brasil",kcal:659,carbs:12,prot:14,fat:67,fib:7.5},
+  {n:"Cacahuetes",kcal:567,carbs:16,prot:25.8,fat:49,fib:8.5},
+  {n:"Crema de cacahuete",kcal:590,carbs:20,prot:25,fat:50,fib:6},
+  {n:"Tahini",kcal:595,carbs:21,prot:17,fat:54,fib:9},
+  {n:"Chocolate negro 85%",kcal:590,carbs:22,prot:10,fat:46,fib:11},
+  {n:"Cacao en polvo",kcal:228,carbs:58,prot:20,fat:14,fib:37},
+  {n:"Miel",kcal:304,carbs:82,prot:0.3,fat:0,fib:0.2},
+  {n:"Azúcar blanco",kcal:387,carbs:99.8,prot:0,fat:0,fib:0},
+  {n:"Mermelada",kcal:250,carbs:63,prot:0.4,fat:0.1,fib:1},
+  {n:"Aceite de coco",kcal:862,carbs:0,prot:0,fat:100,fib:0},
+  {n:"Salsa de soja",kcal:53,carbs:8,prot:4.5,fat:0.6,fib:0.8},
+  {n:"Mostaza",kcal:66,carbs:5.8,prot:4.4,fat:4,fib:3.3},
+  {n:"Ketchup",kcal:112,carbs:26,prot:1.5,fat:0.1,fib:0.3},
+  {n:"Mayonesa",kcal:680,carbs:2,prot:1,fat:75,fib:0},
+  {n:"Tomate frito",kcal:73,carbs:12,prot:1.6,fat:3.5,fib:1.4},
+  {n:"Nata de coco",kcal:230,carbs:3,prot:2.3,fat:24,fib:2.2},
+  {n:"Bebida de avena",kcal:46,carbs:7.3,prot:0.9,fat:1.1,fib:0.8},
+  {n:"Bebida de arroz",kcal:47,carbs:9.2,prot:0.3,fat:1.3,fib:0.3},
+];
+const normStr = s => String(s??"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+/* Buscador sobre la base de referencia + la base del plan. */
+function nutriSearch(q){
+  const nq = normStr(q).trim(); if(nq.length<2) return [];
+  const qw = nq.split(/\s+/);
+  const scan = e => {
+    const ne = normStr(e.n); let score = 0;
+    if(ne===nq) score = 100;
+    else if(ne.startsWith(nq)) score = 70;
+    else if(ne.includes(nq)) score = 50;
+    else { const hits = qw.filter(w => ne.includes(w)).length; if(hits===qw.length) score = 30 + hits; }
+    return score;
+  };
+  return NUTRITION_DB.map(e => ({e, score:scan(e)}))
+    .concat(INGREDIENTS.map(e => ({e, score:scan(e)})))
+    .filter(r => r.score>0).sort((a,b)=>b.score-a.score).slice(0,6).map(r=>r.e);
+}
+/* Estado del formulario del gestor (sobrevive a re-renderizados) */
+function freshIngForm(){ return {name:"", u:"g", per:"100", cat:"otro", kcal:"", carbs:"", prot:"", fat:"", fib:"", results:[], searched:false, foundName:null, msg:""}; }
+let ingForm = freshIngForm();
+function readIngForm(){
+  const g = id => { const el = $("#"+id); return el ? el.value : undefined; };
+  if(g("ingName")  !== undefined) ingForm.name  = g("ingName");
+  if(g("ingU")     !== undefined) ingForm.u     = g("ingU");
+  if(g("ingPer")   !== undefined) ingForm.per   = g("ingPer");
+  if(g("ingCat")   !== undefined) ingForm.cat   = g("ingCat");
+  if(g("ingKcal")  !== undefined) ingForm.kcal  = g("ingKcal");
+  if(g("ingCarbs") !== undefined) ingForm.carbs = g("ingCarbs");
+  if(g("ingProt")  !== undefined) ingForm.prot  = g("ingProt");
+  if(g("ingFat")   !== undefined) ingForm.fat   = g("ingFat");
+  if(g("ingFib")   !== undefined) ingForm.fib   = g("ingFib");
+}
 /* Cálculo nutricional de una receta y equivalencia en intercambios del plan:
    hidratos = carbos/25 · proteínas = proteína/15,7 · grasas = grasa/18,8
    (de tu plan: 4 intercambios = 100 g CH; 7 = 110 g proteína; 4 = 75 g grasa).
@@ -511,7 +699,7 @@ const DB = (() => {
   let db = null;
   function open(){
     return new Promise((res, rej) => {
-      const rq = indexedDB.open("nutriplan-db", 3);
+      const rq = indexedDB.open("nutriplan-db", 4);
       rq.onupgradeneeded = e => {
         const d = e.target.result;
         if(!d.objectStoreNames.contains("weeks")) d.createObjectStore("weeks",{keyPath:"weekStart"});
@@ -521,6 +709,8 @@ const DB = (() => {
         if(!d.objectStoreNames.contains("recipes")) d.createObjectStore("recipes",{keyPath:"id"});
         if(!d.objectStoreNames.contains("exercisePlan")) d.createObjectStore("exercisePlan",{keyPath:"id"});
         if(!d.objectStoreNames.contains("exerciseRecords")) d.createObjectStore("exerciseRecords",{keyPath:"id"});
+        if(!d.objectStoreNames.contains("ingredients")) d.createObjectStore("ingredients",{keyPath:"id"});
+        if(!d.objectStoreNames.contains("settings")) d.createObjectStore("settings",{keyPath:"id"});
       };
       rq.onsuccess = e => { db = e.target.result; res(db); };
       rq.onerror = () => rej(rq.error);
@@ -569,6 +759,7 @@ const state = {
   logs: {},
   pantryMap: {},
   recipes: [],
+  customIngs: [],
   editMode: false,
   route: location.hash.replace("#","") || "/",
   planStep: 0,
@@ -582,6 +773,10 @@ async function loadState(){
   state.pantryMap = {};
   (await DB.all("pantry")).forEach(p => state.pantryMap[p.id] = p);
   state.recipes = await DB.all("recipes");
+  state.customIngs = await DB.all("ingredients");
+  const hset = await DB.get("settings","hiddenIngs");
+  hiddenIngIds = (hset && Array.isArray(hset.ids)) ? hset.ids : [];
+  rebuildIngredients();
 }
 async function saveWeek(){ await DB.put("weeks", state.week); }
 async function saveLog(log){ state.logs[log.date] = log; await DB.put("logs", log); }
@@ -595,6 +790,25 @@ async function pantryAddDelta(key, name, unit, prod, delta){
   cur.stock = Math.max(0, Math.round((cur.stock + delta)*100)/100);
   await pantryPut(cur);
   return cur;
+}
+/* Cruza un ingrediente del constructor con la despensa: solo se pueden
+   usar ingredientes con stock disponible. Empareja por nombre
+   normalizado (exacto o contenido mutuo) y unidad compatible. */
+function pantryMatch(ing){
+  const ni = normStr(ing.n);
+  const items = Object.values(state.pantryMap);
+  const eq = p => {
+    const np = normStr(p.name);
+    return np === ni || (ni.length>4 && np.includes(ni)) || (np.length>4 && ni.includes(np));
+  };
+  const sameUnit = p => p.unit === ing.u || (ing.u==="g" && p.unit==="g") || (ing.u==="ml" && p.unit==="ml") || (ing.u==="ud" && p.unit==="ud");
+  const p = items.find(p => eq(p) && sameUnit(p)) || items.find(eq);
+  return p || null;
+}
+function pantryAvailable(){
+  return visibleIngredients()
+    .map(g => ({g, p: pantryMatch(g)}))
+    .filter(x => x.p && x.p.stock > 0);
 }
 
 /* ── navegación ── */
@@ -1103,12 +1317,23 @@ function renderPantry(){
       <button class="btn soft sm" data-nav="/planificacion">🧺 Ir a la lista de la compra</button>
     </div>
     <h3>➕ Añadir producto a mano</h3>
-    <div class="btn-row" style="align-items:flex-end;flex-wrap:wrap">
-      <div style="flex:2;min-width:150px"><label class="fld">Producto</label><input class="txt" id="pantryName" placeholder="Ej.: Tomate triturado"></div>
-      <div style="flex:1;min-width:80px"><label class="fld">Unidad</label><input class="txt" id="pantryUnit" placeholder="g / ml / ud"></div>
+    <p class="small muted" style="margin-bottom:8px">Solo se pueden incorporar ingredientes <b>creados previamente en el gestor de ingredientes</b>, los de la <b>base del plan nutricional</b> o <b>productos de temporada en Madrid</b>. ¿Falta alguno? Créalo primero en <a href="#/recetas" data-nav="/recetas">Recetas → Gestor de ingredientes</a>.</p>
+    ${(() => {
+      const m = new Date().getMonth()+1;
+      const seen = new Set();
+      const groups = [];
+      const push = (label, rows) => { const r = rows.filter(x=>x && !seen.has(x.key)); r.forEach(x=>seen.add(x.key)); if(r.length) groups.push({label, rows:r}); };
+      push("🧪 Mis ingredientes (gestor)", (state.customIngs||[]).map(g => ({key:normStr(g.n), name:g.n, unit:g.u, prod:g.prod||"custom", emoji:ingEmoji(g)})));
+      push("📖 Base del plan nutricional", INGREDIENTS.map(g => ({key:normStr(g.n), name:g.n, unit:g.u, prod:g.prod||"", emoji:ingEmoji(g)})));
+      push(`🍂 De temporada en Madrid (${monthName(m)})`, Object.entries(PRODUCE).filter(([,p])=>p.months.includes(m)).map(([k,p]) => ({key:normStr(PRODUCE_LABELS[k]||k), name:PRODUCE_LABELS[k]||k, unit:"g", prod:k, emoji:p.emoji})));
+      if(!groups.length) return '<div class="empty">No hay ingredientes disponibles para añadir.</div>';
+      return `<div class="btn-row" style="align-items:flex-end;flex-wrap:wrap">
+      <div style="flex:2;min-width:170px"><label class="fld">Producto</label>
+        <select id="pantryName" class="txt">${groups.map(gr=>`<optgroup label="${gr.label}">${gr.rows.map(r=>`<option value="${esc(r.name)}" data-unit="${esc(r.unit)}" data-prod="${esc(r.prod)}">${r.emoji} ${esc(r.name)} (${esc(r.unit)})</option>`).join("")}</optgroup>`).join("")}</select></div>
       <div style="flex:1;min-width:80px"><label class="fld">Cantidad</label><input class="txt" id="pantryQty" type="number" min="0" step="any" placeholder="0"></div>
       <button class="btn primary sm" data-action="pantry-add">Añadir</button>
-    </div>
+    </div>`;
+    })()}
     <h3>📦 Stock actual</h3>
     ${items.length?items.map(p=>`<div class="portion">
       <div class="foodchip g6" style="width:42px;height:42px;min-width:42px;font-size:1.15rem;border-radius:12px">${seasonEmoji(p.prod)}</div>
@@ -1139,6 +1364,72 @@ function macroBar(label, g, pct, target, color){
     <div style="display:flex;justify-content:space-between;font-size:.74rem"><b>${label}</b><span class="muted">${g} g · ${pct}% kcal <span class="badge ${Math.abs(diff)<=6?"b-green":"b-amber"}" style="margin-left:4px">objetivo ${target}%${Math.abs(diff)>6?" (Δ"+(diff>0?"+":"")+diff+")":""}</span></span></div>
     <div class="progress"><i style="width:${Math.min(100,pct)}%;background:${color}"></i></div></div>`;
 }
+
+/* ════════════════════════════════════════════════════════════
+   VISTA · Gestor de ingredientes (añadir / borrar / ocultar)
+   ════════════════════════════════════════════════════════════ */
+function renderIngManager(){
+  const cats = Object.keys(ING_CATS);
+  const custom = (state.customIngs||[]);
+  const baseVis = visibleIngredients().filter(g=>!g.custom);
+  const baseHid = ALL_INGREDIENTS.filter(g=>!g.custom && hiddenIngIds.includes(g.id));
+  return `<div class="card">
+    <h2>🧪 Gestor de ingredientes <span class="badge b-orange">${ALL_INGREDIENTS.length} en total</span></h2>
+    <p class="small muted" style="margin-bottom:12px">Crea ingredientes nuevos para tus recetas: la app busca sus cualidades nutricionales en la <b>base de referencia (tablas BEDCA/CESNID, ~120 alimentos)</b> y las rellena automáticamente. Si no aparecen, indícalo e introduce los valores del envase para incorporar ese ingrediente puntual. Los ingredientes de la base también se pueden ocultar del constructor.</p>
+    <div class="grid cols-2">
+      <div>
+        <label class="fld">Nombre del ingrediente</label>
+        <div class="btn-row" style="align-items:flex-end">
+          <input class="txt" id="ingName" data-action="ing-name" value="${esc(ingForm.name)}" placeholder="Ej.: Quinoa cocida" style="flex:2">
+          <button class="btn soft sm" data-action="ing-search">🔍 Buscar datos</button>
+        </div>
+        ${ingForm.searched ? (ingForm.results.length
+          ? `<div class="notice ok" style="margin:10px 0">✅ <div><b>${ingForm.results.length} resultado${ingForm.results.length>1?"s":""}</b> en la base de referencia. Pulsa «Usar» para autocompletar:
+            ${ingForm.results.map((r,i)=>`<div class="portion" style="padding:6px 9px;margin-top:6px"><div class="grow"><div class="name" style="font-size:.82rem">${esc(r.n)}</div><div class="meta">${r.kcal} kcal · CH ${r.carbs} g · Prot ${r.prot} g · Grasa ${r.fat} g · Fibra ${r.fib} g / 100 ${r.u||"g"}</div></div><button class="btn soft sm" data-action="ing-use" data-i="${i}">Usar</button></div>`).join("")}</div></div>`
+          : `<div class="notice warn" style="margin:10px 0">⚠️ <div><b>No se encontraron datos nutricionales en la base de referencia.</b> Introduce los valores de la etiqueta del envase para incorporar «${esc(ingForm.name)}» como ingrediente puntual.</div></div>`) : ""}
+        ${ingForm.foundName?`<div class="notice ok" style="margin:10px 0">✅ <div>Valores tomados de <b>${esc(ingForm.foundName)}</b>. Puedes ajustarlos si lo necesitas.</div></div>`:""}
+        ${ingForm.msg?`<div class="notice warn" style="margin:10px 0">⚠️ <div>${esc(ingForm.msg)}</div></div>`:""}
+        <div class="btn-row" style="align-items:flex-end;flex-wrap:wrap;margin-top:4px">
+          <div style="flex:1;min-width:90px"><label class="fld">Unidad</label>
+            <select id="ingU" class="txt">${["g","ml","ud"].map(u=>`<option value="${u}" ${ingForm.u===u?"selected":""}>${u==="ud"?"unidad (ud)":u}</option>`).join("")}</select></div>
+          <div style="flex:1;min-width:90px"><label class="fld">Referencia</label>
+            <input id="ingPer" type="number" min="0.1" step="any" class="txt" value="${esc(ingForm.per)}"></div>
+          <div style="flex:2;min-width:140px"><label class="fld">Categoría (intercambio)</label>
+            <select id="ingCat" class="txt">${cats.map(c=>`<option value="${c}" ${ingForm.cat===c?"selected":""}>${ING_CATS[c].emoji} ${ING_CATS[c].label}${ING_CATS[c].ex?" · intercambio propio":""}</option>`).join("")}</select></div>
+        </div>
+        <div class="btn-row" style="align-items:flex-end;flex-wrap:wrap;margin-top:4px">
+          <div style="flex:1;min-width:80px"><label class="fld">kcal</label><input id="ingKcal" type="number" min="0" step="any" class="txt" value="${esc(ingForm.kcal)}" placeholder="0"></div>
+          <div style="flex:1;min-width:70px"><label class="fld">Carbs g</label><input id="ingCarbs" type="number" min="0" step="any" class="txt" value="${esc(ingForm.carbs)}" placeholder="0"></div>
+          <div style="flex:1;min-width:70px"><label class="fld">Prot g</label><input id="ingProt" type="number" min="0" step="any" class="txt" value="${esc(ingForm.prot)}" placeholder="0"></div>
+          <div style="flex:1;min-width:70px"><label class="fld">Grasa g</label><input id="ingFat" type="number" min="0" step="any" class="txt" value="${esc(ingForm.fat)}" placeholder="0"></div>
+          <div style="flex:1;min-width:70px"><label class="fld">Fibra g</label><input id="ingFib" type="number" min="0" step="any" class="txt" value="${esc(ingForm.fib)}" placeholder="0"></div>
+        </div>
+        <p class="small muted" style="margin:6px 0 10px">Valores por cada «referencia» (ej.: referencia 100 = por 100 g/ml; unidad = por 1 ud). Si la categoría tiene intercambio propio (fruta, verdura, lácteo), la receta lo contará además de los macros.</p>
+        <button class="btn primary" data-action="ing-create">＋ Crear ingrediente</button>
+      </div>
+      <div>
+        <h3>🧪 Mis ingredientes <span class="badge b-orange">${custom.length}</span></h3>
+        ${custom.length?custom.map(g=>`<div class="portion" style="padding:8px 11px">
+          <div class="foodchip g2" style="width:38px;height:38px;min-width:38px;font-size:1.05rem;border-radius:10px">${ingEmoji(g)}</div>
+          <div class="grow"><div class="name" style="font-size:.82rem">${esc(g.n)} <span class="badge b-gray">${ING_CATS[g.cat]?ING_CATS[g.cat].label:g.cat}</span></div>
+          <div class="meta">${g.kcal} kcal · CH ${g.carbs} g · Prot ${g.prot} g · Grasa ${g.fat} g · Fibra ${g.fib} g / ${g.per} ${g.u}</div></div>
+          <button class="iconbtn" title="Eliminar ingrediente" data-action="ing-del" data-id="${esc(g.id)}">🗑</button></div>`).join("")
+        :'<div class="empty">Sin ingredientes personalizados todavía. Crea el primero con el formulario.</div>'}
+        <h3 style="margin-top:16px">📖 Base del plan <span class="badge b-gray">${baseVis.length} visibles · ${baseHid.length} ocultos</span></h3>
+        <div style="max-height:280px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:6px">
+        ${baseVis.map(g=>`<div class="portion" style="padding:5px 9px">
+          <div class="foodchip g6" style="width:30px;height:30px;min-width:30px;font-size:.9rem;border-radius:8px">${ingEmoji(g)}</div>
+          <div class="grow"><div class="name" style="font-size:.78rem">${esc(g.n)}</div><div class="meta">${g.kcal} kcal/${g.per}${g.u}</div></div>
+          <button class="iconbtn" title="Ocultar del constructor" data-action="ing-hide" data-id="${esc(g.id)}">👁️</button></div>`).join("")}
+        </div>
+        ${baseHid.length?`<h3 style="margin-top:12px">🙈 Ocultos</h3>${baseHid.map(g=>`<div class="portion" style="padding:5px 9px">
+          <div class="foodchip g6" style="width:30px;height:30px;min-width:30px;font-size:.9rem;border-radius:8px;opacity:.5">${ingEmoji(g)}</div>
+          <div class="grow"><div class="name" style="font-size:.78rem;opacity:.6">${esc(g.n)}</div></div>
+          <button class="iconbtn" title="Restaurar" data-action="ing-restore" data-id="${esc(g.id)}">↩️</button></div>`).join("")}`:""}
+      </div>
+    </div>
+  </div>`;
+}
 function renderRecipes(){
   const calc = calcRecipe(recItems);
   const {kcal,carbs,prot,fat,fib} = calc.totals;
@@ -1147,22 +1438,30 @@ function renderRecipes(){
   return `<div class="view active">
   <div class="card">
     <h2>📝 Creador de recetas <span class="badge b-orange">cálculo nutricional automático</span></h2>
-    <p class="small muted" style="margin-bottom:12px">Construye una receta con los ingredientes del plan y obtén sus calorías, macros, fibra y su equivalencia en <b>intercambios</b>, comparada con la distribución objetivo de tu plan (30% CH · 30% Prot · 40% Grasa). Las recetas guardadas se pueden asignar a cualquier ingesta del menú semanal.</p>
+    <p class="small muted" style="margin-bottom:12px">Construye una receta <b>exclusivamente con ingredientes disponibles en tu despensa</b> (el selector solo muestra los que tienen stock) y obtén sus calorías, macros, fibra y su equivalencia en <b>intercambios</b>, comparada con la distribución objetivo de tu plan (30% CH · 30% Prot · 40% Grasa). Al guardar la receta, las cantidades utilizadas se descuentan automáticamente del stock de la despensa. Las recetas guardadas se pueden asignar a cualquier ingesta del menú semanal.</p>
     <div class="grid cols-2">
       <div>
         <label class="fld">Nombre de la receta</label>
         <input class="txt" id="recName" data-action="rec-name" value="${esc(recNameVal)}" placeholder="Ej.: Ensalada de quinoa y pollo">
         <label class="fld">Tipo de toma</label>
         <select id="recSlot" class="txt" data-action="rec-slot">${SLOTS.map(s=>`<option value="${s}" ${recSlotVal===s?"selected":""}>${SLOT_LABELS[s]}</option>`).join("")}</select>
-        <label class="fld">Añadir ingrediente</label>
-        <div class="btn-row" style="align-items:flex-end">
-          <select id="recIng" class="txt" style="flex:2">${INGREDIENTS.map(g=>`<option value="${g.id}">${seasonEmoji(g.prod)} ${g.n} (${g.u==="ud"?"unidad":"/100 "+g.u})</option>`).join("")}</select>
+        <label class="fld">Añadir ingrediente <span class="badge b-sky">solo disponibles en despensa</span></label>
+        ${(() => {
+          const avail = pantryAvailable();
+          if(!avail.length) return `<div class="notice warn" style="margin-bottom:10px">🥫 <div><b>No hay ingredientes con stock en la despensa.</b> Las recetas solo admiten ingredientes disponibles: añade stock en la <b><a href="#/despensa" data-nav="/despensa" style="color:inherit">vista Despensa</a></b> (a mano o desde la lista de la compra) para poder construir recetas.</div></div>
+          <div class="btn-row" style="align-items:flex-end"><input id="recQty" type="number" style="display:none"><button class="btn primary sm" disabled>＋ Añadir</button></div>`;
+          const opt = ({g,p}) => `<option value="${g.id}">${ingEmoji(g)} ${esc(g.n)} · ${p.stock} ${p.unit} en despensa</option>`;
+          const base = avail.filter(x=>!x.g.custom).map(opt).join("");
+          const custom = avail.filter(x=>x.g.custom).map(opt).join("");
+          return `<div class="btn-row" style="align-items:flex-end">
+          <select id="recIng" class="txt" style="flex:2">${(custom?`<optgroup label="🧪 Mis ingredientes">${custom}</optgroup>`:"")}<optgroup label="📖 Base del plan">${base}</optgroup></select>
           <input id="recQty" type="number" min="0" step="any" placeholder="Cant." style="width:90px" value="100">
           <button class="btn primary sm" data-action="rec-add-ing">＋ Añadir</button>
-        </div>
+        </div>`;
+        })()}
         <div style="margin-top:12px">
           ${recItems.length?recItems.map((it,i)=>{ const g=ingById(it.ingId); return `<div class="portion" style="padding:8px 11px">
-            <div class="foodchip g${(i%6)+1}" style="width:36px;height:36px;min-width:36px;font-size:1rem;border-radius:10px">${seasonEmoji(g.prod)}</div>
+            <div class="foodchip g${(i%6)+1}" style="width:36px;height:36px;min-width:36px;font-size:1rem;border-radius:10px">${ingEmoji(g)}</div>
             <div class="grow"><div class="name" style="font-size:.82rem">${esc(g.n)}</div><div class="meta">${it.qty} ${g.u}</div></div>
             <button class="iconbtn" data-action="rec-del-ing" data-i="${i}">🗑</button></div>`; }).join(""):'<div class="empty">Añade ingredientes para calcular la receta.</div>'}
         </div>
@@ -1188,6 +1487,7 @@ function renderRecipes(){
       </div>
     </div>
   </div>
+  ${renderIngManager()}
   <div class="card">
     <h2>📚 Mis recetas <span class="badge b-orange">${state.recipes.length}</span></h2>
     ${state.recipes.length?state.recipes.map(r=>{ const c=r.totals; return `<div class="portion">
@@ -1474,9 +1774,11 @@ document.addEventListener("click", async e => {
       state.week.pantryApplied = true; await saveWeek(); render(); break;
     }
     case "pantry-add": {
-      const n = $("#pantryName").value.trim(), u = $("#pantryUnit").value.trim()||"ud", q = parseFloat($("#pantryQty").value)||0;
-      if(!n) break;
-      await pantryAddDelta(pantryKey(n,u), n, u, "", q); render(); break;
+      const sel = $("#pantryName"); if(!sel || !sel.value) break;
+      const opt = sel.selectedOptions[0];
+      const n = sel.value.trim(), u = (opt && opt.dataset.unit) || "g", prod = (opt && opt.dataset.prod) || "";
+      const q = parseFloat($("#pantryQty").value)||0;
+      await pantryAddDelta(pantryKey(n,u), n, u, prod, q); render(); break;
     }
     case "pantry-adj": {
       const p = state.pantryMap[d.id]; if(!p) break;
@@ -1533,6 +1835,13 @@ document.addEventListener("click", async e => {
       const {totals, ex} = calcRecipe(recItems);
       const rec = {id:uid(), name, slot:recSlotVal, items:recItems.map(x=>({...x})), totals, ex, createdAt:todayISO()};
       await DB.put("recipes", rec); state.recipes.push(rec);
+      /* Cocinar la receta consume la despensa: se descuenta cada cantidad
+         del producto emparejado (sin bajar de 0). */
+      for(const it of rec.items){
+        const g = ingById(it.ingId); if(!g) continue;
+        const p = pantryMatch(g); if(!p) continue;
+        await pantryAddDelta(p.id, p.name, p.unit, p.prod, -Math.min(it.qty, p.stock));
+      }
       recItems = []; recNameVal = ""; render(); break;
     }
     case "rec-del": {
@@ -1540,6 +1849,54 @@ document.addEventListener("click", async e => {
       state.recipes = state.recipes.filter(r=>r.id!==d.id);
       DAYS.forEach(day=>SLOTS.forEach(s=>{ const en=state.week.days[day][s]; if(en.recipeId===d.id) en.recipeId=null; }));
       await saveWeek(); render(); break;
+    }
+    case "ing-search": {
+      readIngForm(); ingForm.msg = "";
+      ingForm.results = nutriSearch(ingForm.name);
+      ingForm.searched = true; ingForm.foundName = null;
+      render(); break;
+    }
+    case "ing-use": {
+      const m = ingForm.results[+d.i]; if(!m) break;
+      ingForm.kcal = m.kcal; ingForm.carbs = m.carbs; ingForm.prot = m.prot;
+      ingForm.fat = m.fat; ingForm.fib = m.fib;
+      ingForm.foundName = m.n; ingForm.results = []; ingForm.searched = false; ingForm.msg = "";
+      render(); break;
+    }
+    case "ing-create": {
+      readIngForm();
+      const n = ingForm.name.trim();
+      if(!n){ ingForm.msg = "Pon un nombre al ingrediente."; render(); break; }
+      if(ALL_INGREDIENTS.some(g => normStr(g.n) === normStr(n))){ ingForm.msg = "Ya existe un ingrediente con ese nombre (base o personalizado)."; render(); break; }
+      const kcal = parseFloat(ingForm.kcal);
+      if(!(kcal>0)){ ingForm.msg = "No hay valores nutricionales: busca el alimento en la base de referencia o introduce los valores del envase (kcal > 0)."; render(); break; }
+      const cat = ING_CATS[ingForm.cat] ? ingForm.cat : "otro";
+      const ing = {
+        id:"c_"+uid(), n, u:ingForm.u, per:Math.max(0.1, parseFloat(ingForm.per)||100),
+        kcal, carbs:parseFloat(ingForm.carbs)||0, prot:parseFloat(ingForm.prot)||0,
+        fat:parseFloat(ingForm.fat)||0, fib:parseFloat(ingForm.fib)||0,
+        prod:"custom", cat, custom:true, emoji:ING_CATS[cat].emoji,
+      };
+      if(ING_CATS[cat].ex) ing.ex = {...ING_CATS[cat].ex};
+      await DB.put("ingredients", ing);
+      state.customIngs.push(ing); rebuildIngredients();
+      ingForm = freshIngForm();
+      render(); break;
+    }
+    case "ing-del": {
+      await DB.del("ingredients", d.id);
+      state.customIngs = state.customIngs.filter(i=>i.id!==d.id);
+      hiddenIngIds = hiddenIngIds.filter(x=>x!==d.id);
+      rebuildIngredients(); render(); break;
+    }
+    case "ing-hide": {
+      if(!hiddenIngIds.includes(d.id)){ hiddenIngIds.push(d.id); await DB.put("settings",{id:"hiddenIngs", ids:hiddenIngIds}); }
+      render(); break;
+    }
+    case "ing-restore": {
+      hiddenIngIds = hiddenIngIds.filter(x=>x!==d.id);
+      await DB.put("settings",{id:"hiddenIngs", ids:hiddenIngIds});
+      render(); break;
     }
     case "alter-set": {
       if(d.kind==="opt") setCell(d.day,d.slot,{optionId:d.val});
@@ -1593,8 +1950,12 @@ document.addEventListener("input", e => {
   const el = e.target.closest('[data-action="cell-custom"]');
   if(el) state.week.days[el.dataset.day][el.dataset.slot].customText = el.value;
   if(e.target.closest('[data-action="rec-name"]')) recNameVal = e.target.value;
+  if(e.target.closest('[data-action="ing-name"]')){ ingForm.name = e.target.value; ingForm.msg = ""; }
 });
-document.addEventListener("keydown", e => { if(e.key==="Escape"){ closeDialog(); } });
+document.addEventListener("keydown", e => {
+  if(e.key==="Escape"){ closeDialog(); }
+  if(e.key==="Enter" && e.target.id==="ingName"){ e.preventDefault(); document.querySelector('[data-action="ing-search"]')?.click(); }
+});
 
 /* ════════════════════════════════════════════════════════════
    Arranque
